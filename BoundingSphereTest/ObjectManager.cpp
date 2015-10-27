@@ -1,7 +1,5 @@
 #include "ObjectManager.h"
 
-#include "Point.h"
-
 void ObjectManager::Init()
 {
 	m_renderManager.Init();
@@ -14,9 +12,20 @@ void ObjectManager::GenerateRandomPoints(int numberOfPoints, glm::vec2 xBounds, 
 	for (unsigned int i = 0; i < numberOfPoints; i++)
 	{
 		position = CalcRandomPosition(xBounds, yBounds, zBounds);
+		position.z = 0.0f;
 		Point newPoint(position,color,m_renderManager.CreateRenderComponent());
 		m_points.push_back(newPoint);
 	}
+	//position.x = 0.5f;
+	//position.y = 0.0f;
+	//position.z = 0.0f;
+	//Point newPoint1(position, color, m_renderManager.CreateRenderComponent());
+	//position.x = 0.0f;
+	//position.y = 0.5f;
+	//Point newPoint2(position, color, m_renderManager.CreateRenderComponent());
+	//position.x = -0.5f;
+	//position.y = 0.0f;
+	//Point newPoint3(position, color, m_renderManager.CreateRenderComponent());
 }
 void ObjectManager::CalculateBoundingCircle()
 {

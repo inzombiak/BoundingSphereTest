@@ -5,9 +5,8 @@
 
 #include "Circle.h"
 #include "RenderManager.h"
+#include "Point.h"
 
-class RenderManager;
-class Point;
 class ObjectManager
 {
 public:

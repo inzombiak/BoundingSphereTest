@@ -1,7 +1,7 @@
 #pragma once
 #include "glm\glm.hpp"
+#include "RenderComponent.h"
 
-class RenderComponent;
 class Point
 {
 public:
@@ -9,16 +9,21 @@ public:
 	{
 		m_position = position;
 		m_color = color;
-
 		m_renderComponent = renderComp;
-		renderComp->SetVertices(position);
-		renderComp->SetColor(color);
+		SetPosition(m_position);
+
+		std::vector<glm::vec3> tempColor;
+		tempColor.push_back(color);
+		renderComp->SetColor(tempColor);
+
+		renderComp->SetDrawPrimitive(GL_POINTS);
 	}
 	
 	void SetPosition(glm::vec3 position)
 	{
-		m_position = position;
-		m_renderComponent->SetVertices(position);
+		std::vector<glm::vec3> tempVert;
+		tempVert.push_back(position);
+		m_renderComponent->SetVertices(tempVert);
 	}
 	glm::vec3 GetPosition() const
 	{

@@ -57,6 +57,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glew32sd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -79,6 +80,7 @@
   <ItemGroup>
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="HelperFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Point.cpp" />
@@ -89,11 +91,16 @@
   <ItemGroup>
     <ClInclude Include="Circle.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Sphere.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FragmentShader.glsl" />
+    <None Include="VertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

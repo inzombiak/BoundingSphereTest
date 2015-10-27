@@ -130,18 +130,19 @@ void InitializeProgram()
 void init()
 {
 	m_om.Init();
+	m_om.GenerateRandomPoints(10,glm::vec2(-1, 1), glm::vec2(-1, 1), glm::vec2(-1, 1));
 
-	glPolygonMode(GL_FRONT, GL_FILL);
+	//glPolygonMode(GL_FRONT, GL_FILL);
 
-	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
+	//// Enable depth test
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//// Accept fragment if it closer to the camera than the former one
+	//glDepthFunc(GL_LESS);
+	//glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	////glDisable(GL_CULL_FACE);
 
 }
 
@@ -189,8 +190,6 @@ void display()
 	up = glm::cross(right, direction);
 	
 	m_om.Draw(position, direction, up);
-
-	glutSwapBuffers();
 }
 
 void mouse(int button, int state, int x, int y)

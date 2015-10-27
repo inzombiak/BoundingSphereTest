@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 
+#include "RenderComponent.h"
+
 class RenderComponent;
 class RenderManager
 {
@@ -10,6 +12,8 @@ public:
 	RenderComponent* CreateRenderComponent();
 
 private:
+	GLuint m_program;
+	GLuint m_vertexArrayObject;
 	std::vector<RenderComponent> m_renderComponents;
 };
 
