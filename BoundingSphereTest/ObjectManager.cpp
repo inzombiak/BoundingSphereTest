@@ -1,7 +1,12 @@
 #include "ObjectManager.h"
 
+#include <random>
+
 void ObjectManager::Init()
 {
+	std::random_device rd;
+	m_randomMTEngine.seed(rd());
+	
 	m_renderManager.Init();
 }
 
@@ -16,6 +21,9 @@ void ObjectManager::GenerateRandomPoints(int numberOfPoints, glm::vec2 xBounds, 
 		Point newPoint(position,color,m_renderManager.CreateRenderComponent());
 		m_points.push_back(newPoint);
 	}
+
+	Circle test(m_points[1].GetPosition(), 0.5, m_renderManager.CreateRenderComponent());
+
 	//position.x = 0.5f;
 	//position.y = 0.0f;
 	//position.z = 0.0f;
@@ -39,15 +47,18 @@ void ObjectManager::Draw(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
 glm::vec3 ObjectManager::CalcRandomPosition(glm::vec2 xBounds, glm::vec2 yBounds, glm::vec2 zBounds)
 {
 	glm::vec3 result;
-	float random = (float)rand() / (float)RAND_MAX;
+	std::uniform_real_distribution<double> distX(xBounds.x, xBounds.y);
+	std::uniform_real_distribution<double> distY(yBounds.x, yBounds.y);
+	std::uniform_real_distribution<double> distZ(zBounds.x, zBounds.y);
 
-	float xDiff = xBounds.y - xBounds.x;
-	float yDiff = yBounds.y - yBounds.x;
-	float zDiff = zBounds.y - zBounds.x;
-
-	result.x = xBounds.x + random*xDiff;
-	result.y = yBounds.x + random*yDiff;
-	result.z = zBounds.x + random*zDiff;
+	result.x = distX(m_randomMTEngine);
+	result.y = distY(m_randomMTEngine);
+	result.z = distZ(m_randomMTEngine);
 
 	return result;
+}
+
+void ObjectManager::CreateCircle(glm::vec3 center, float radius)
+{
+
 }

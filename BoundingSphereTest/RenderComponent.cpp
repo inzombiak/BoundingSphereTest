@@ -15,13 +15,13 @@ void RenderComponent::Draw(glm::mat4 mvp)
 		0,
 		(void*)0
 		);
-//
-//
-//	GLuint MVPMatID = glGetUniformLocation(m_program, "MVP");
-//	glUniformMatrix4fv(MVPMatID, 1, GL_FALSE, &mvp[0][0]);
-//
 
-	glDrawArrays(GL_POINTS, 0, 1);
+	if (m_drawPrimitive == GL_POINTS)
+		glPolygonMode(GL_FRONT, GL_POINT);
+	else
+		glPolygonMode(GL_FRONT, GL_LINE);
+
+	glDrawArrays(m_drawPrimitive, 0, m_numVertices);
 }
 
 void RenderComponent::SetProgram(GLuint program)
@@ -36,7 +36,7 @@ void RenderComponent::SetVertices(std::vector<glm::vec3> vertices)
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-
+	m_numVertices = vertices.size();
 }
 
 void RenderComponent::SetColor(std::vector<glm::vec3> color)

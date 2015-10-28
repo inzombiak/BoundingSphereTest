@@ -21,6 +21,8 @@ public:
 	void SetProgram(GLuint program);
 
 private:
+	int m_numVertices;
+	
 	GLuint m_program;
 
 	GLuint m_vertexBufferObject = 0;
