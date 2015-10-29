@@ -8,6 +8,7 @@ class RenderManager
 {
 public:
 	void Init();
+	void Clear();
 	void Draw(glm::vec3 position, glm::vec3 direction, glm::vec3 up);
 	RenderComponent* CreateRenderComponent();
 

@@ -23,6 +23,10 @@ void RenderManager::Init()
 	m_program = CreateProgram(shaderList);
 	
 }
+void RenderManager::Clear()
+{
+	m_renderComponents.clear();
+}
 
 void RenderManager::Draw(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
 {

@@ -130,20 +130,13 @@ void InitializeProgram()
 void init()
 {
 	m_om.Init();
-	m_om.GenerateRandomPoints(10,glm::vec2(-1, 1), glm::vec2(-1, 1), glm::vec2(-1, 1));
+	m_om.GenerateRandomPoints(5000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+}
 
-	//glPolygonMode(GL_FRONT, GL_FILL);
-
-	//// Enable depth test
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//// Accept fragment if it closer to the camera than the former one
-	//glDepthFunc(GL_LESS);
-	//glCullFace(GL_BACK);
-	//glEnable(GL_CULL_FACE);
-	////glDisable(GL_CULL_FACE);
-
+void reInit()
+{
+	m_om.Clear();
+	m_om.GenerateRandomPoints(5000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -167,6 +160,13 @@ void keyboard(unsigned char key, int x, int y)
 		return;
 	case 'w':
 		position += direction  * speed;
+		glutPostRedisplay();
+	case 'c':
+		m_om.CalculateBoundingCircle();
+		glutPostRedisplay();
+		return;
+	case 'r':
+		reInit();
 		glutPostRedisplay();
 		return;
 	}
