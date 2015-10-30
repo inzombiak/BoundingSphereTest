@@ -130,13 +130,13 @@ void InitializeProgram()
 void init()
 {
 	m_om.Init();
-	m_om.GenerateRandomPoints(5000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+	m_om.GenerateRandomPoints(4000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
 }
 
 void reInit()
 {
 	m_om.Clear();
-	m_om.GenerateRandomPoints(5000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+	m_om.GenerateRandomPoints(4000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
 }
 
 void keyboard(unsigned char key, int x, int y)
