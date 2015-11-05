@@ -16,10 +16,24 @@ void RenderComponent::Draw(glm::mat4 mvp)
 		(void*)0
 		);
 
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, m_colorBufferObject);
+	glVertexAttribPointer(
+		1,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+		);
+
 	if (m_drawPrimitive == GL_POINTS)
 		glPolygonMode(GL_FRONT, GL_POINT);
 	else
 		glPolygonMode(GL_FRONT, GL_LINE);
+
+	GLuint MVPMatID = glGetUniformLocation(m_program, "MVP");
+	glUniformMatrix4fv(MVPMatID, 1, GL_FALSE, &mvp[0][0]);
 
 	glDrawArrays(m_drawPrimitive, 0, m_numVertices);
 }

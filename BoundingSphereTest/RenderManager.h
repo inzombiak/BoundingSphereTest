@@ -9,7 +9,7 @@ class RenderManager
 public:
 	void Init();
 	void Clear();
-	void Draw(glm::vec3 position, glm::vec3 direction, glm::vec3 up);
+	void Draw(glm::vec3 position, glm::vec3 direction, glm::vec3 up, bool is3D);
 	RenderComponent* CreateRenderComponent();
 
 private:

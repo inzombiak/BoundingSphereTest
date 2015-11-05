@@ -13,130 +13,39 @@
 
 #include "ObjectManager.h"
 
-int m_x = 0, m_y = 0, m_mouseClickX = 0.0f, m_mouseClickY = 0.0f;
-float m_yRotate = 0.f, m_xRotate = 3.14f, deltaTime = 1;
-bool mouseDown = false;
+const int NUMBER_OF_POINTS = 4000;
 
+int m_x = 0, m_y = 0;
+float m_yRotate = 0.f, m_xRotate = 3.14f, deltaTime = 1;
+bool m_draw3D = false;
 // position
 glm::vec3 position = glm::vec3(0, 0, 10), right, up, direction;
-// Initial Field of View
-
-float speed = 3.0f; // 3 units / second
+float speed = 1.0f;
 float mouseSpeed = 0.005f;
 
 ObjectManager m_om;
-
-/*
-std::string ReadFileToString(const char* filePath)
-{
-	std::string content;
-	std::ifstream fileStream(filePath, std::ios::in);
-
-	if (!fileStream.is_open()) {
-		std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
-		return "";
-	}
-
-	std::string line = "";
-	while (!fileStream.eof()) {
-		std::getline(fileStream, line);
-		content.append(line + "\n");
-	}
-
-	fileStream.close();
-	return content;
-}
-
-GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
-{
-	GLuint shader = glCreateShader(eShaderType);
-	const char *strFileData = strShaderFile.c_str();
-	glShaderSource(shader, 1, &strFileData, NULL);
-
-	glCompileShader(shader);
-
-	GLint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE)
-	{
-		GLint infoLogLength;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
-
-		const char *strShaderType = NULL;
-		switch (eShaderType)
-		{
-		case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-		case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-		case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
-		}
-
-		fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
-		delete[] strInfoLog;
-	}
-
-	return shader;
-}
-
-GLuint CreateProgram(const std::vector<GLuint> &shaderList)
-{
-	GLuint program = glCreateProgram();
-
-	for (size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
-		glAttachShader(program, shaderList[iLoop]);
-
-	glLinkProgram(program);
-
-	GLint status;
-	glGetProgramiv(program, GL_LINK_STATUS, &status);
-	if (status == GL_FALSE)
-	{
-		GLint infoLogLength;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
-		fprintf(stderr, "Linker failure: %s\n", strInfoLog);
-		delete[] strInfoLog;
-	}
-
-	for (size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
-		glDetachShader(program, shaderList[iLoop]);
-
-	return program;
-}
-
-void InitializeProgram()
-{
-	shaderList.push_back(CreateShader(GL_VERTEX_SHADER, ReadFileToString("VertexShader.glsl")));
-	shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, ReadFileToString("FragmentShader.glsl")));
-	theProgram = CreateProgram(shaderList);
-
-	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
-	shaderList.clear();
-
-	//shaderList.push_back(CreateShader(GL_VERTEX_SHADER, ReadFileToString("NormalVertexShader.glsl")));
-	//shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, ReadFileToString("NormalFragmentShader.glsl")));
-	shaderList.push_back(CreateShader(GL_VERTEX_SHADER, ReadFileToString("TextureVertexShader.glsl")));
-	shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, ReadFileToString("TextureFragmentShader.glsl")));
-	textureProgram = CreateProgram(shaderList);
-
-	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
-}*/
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
 	m_om.Init();
-	m_om.GenerateRandomPoints(4000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+
+	if (!m_draw3D)
+		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+	else
+		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
 }
 
 void reInit()
 {
 	m_om.Clear();
-	m_om.GenerateRandomPoints(4000, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+
+	if (!m_draw3D)
+		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+	else
+		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+
+	glutPostRedisplay();
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -162,12 +71,15 @@ void keyboard(unsigned char key, int x, int y)
 		position += direction  * speed;
 		glutPostRedisplay();
 	case 'c':
-		m_om.CalculateBoundingCircle();
+		m_om.CalculateBoundingShape();
 		glutPostRedisplay();
 		return;
 	case 'r':
 		reInit();
-		glutPostRedisplay();
+		return;
+	case 'f' :
+		m_draw3D = !m_draw3D;
+		reInit();
 		return;
 	}
 
@@ -197,19 +109,6 @@ void mouse(int button, int state, int x, int y)
 
 	switch (button)
 	{
-	case GLUT_LEFT_BUTTON:
-		if (state == GLUT_DOWN)
-		{
-			m_mouseClickX = x;
-			m_mouseClickY = y;
-			mouseDown = true;
-		}
-		else if (state == GLUT_UP)
-		{
-			mouseDown = false;
-
-		}
-		break;
 	}
 }
 void drag(int x, int y)

@@ -87,6 +87,7 @@
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="WelzlMBC.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circle.h" />
@@ -97,6 +98,7 @@
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="WelzlMBC.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.glsl" />

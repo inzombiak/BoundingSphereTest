@@ -452,3 +452,141 @@ GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 
 	return program;
 }
+
+std::vector<glm::vec3> CreateOctahedronWithRadius(glm::vec3 center, float radius)
+{
+	float side;
+	side = radius * sqrt(2);
+
+	return CreateOctahedronWithSide(center, side);
+}
+std::vector<glm::vec3> CreateOctahedronWithSide(glm::vec3 center, float side)
+{
+	std::vector<glm::vec3> result;
+
+	//Vertices of the Octahedron
+	glm::vec3 top, bottom, cornerFrontLeft, corners[4];
+
+	top = center;
+	top.y += side / sqrt(2);
+
+	bottom = center;
+	bottom.y -= side/ sqrt(2);
+
+	cornerFrontLeft = center;
+	cornerFrontLeft.x -= side / 2;
+	cornerFrontLeft.z -= side / 2;
+
+	corners[0] = center;
+	corners[0].x -= side / 2;
+	corners[0].z -= side / 2;
+
+	corners[1] = corners[0];
+	corners[1].x += side;
+
+	corners[2] = corners[1];
+	corners[2].z += side;
+
+	corners[3] = corners[2];
+	corners[3].x -= side;
+
+	for (unsigned int i = 0; i < 4; ++i)
+	{
+		result.push_back(top);
+		result.push_back(corners[i]);
+		result.push_back(corners[(i + 1) % 4]);
+	}
+
+	for (unsigned int i = 0; i < 4; ++i)
+	{
+		result.push_back(bottom);
+		result.push_back(corners[i]);
+		result.push_back(corners[(i + 1) % 4]);
+	}
+
+	return result;
+}
+
+//Splits an equilater triangle into 4 equilateral parts
+std::vector<glm::vec3> DivideTriangle(glm::vec3 originalVertices[3],  int remainingSubdivisons)
+{
+	std::vector<glm::vec3> result;
+	glm::vec3 midPoints[3];
+
+	midPoints[0] = glm::vec3((originalVertices[0].x + originalVertices[1].x) / 2, (originalVertices[0].y + originalVertices[1].y) / 2, (originalVertices[0].z + originalVertices[1].z) / 2);
+	midPoints[1] = glm::vec3((originalVertices[1].x + originalVertices[2].x) / 2, (originalVertices[1].y + originalVertices[2].y) / 2, (originalVertices[1].z + originalVertices[2].z) / 2);
+	midPoints[2] = glm::vec3((originalVertices[2].x + originalVertices[0].x) / 2, (originalVertices[2].y + originalVertices[0].y) / 2, (originalVertices[2].z + originalVertices[0].z) / 2);
+
+	for (int i = 0; i < 3; ++i)
+	{
+		result.push_back(midPoints[i]);
+		result.push_back(originalVertices[i]);
+		result.push_back(midPoints[(i + 2) % 3]);
+	}
+
+	result.insert(result.begin(), midPoints, midPoints + 3);
+
+	if (remainingSubdivisons == 0)
+		return result;
+
+	std::vector<glm::vec3> splitResults;
+	glm::vec3 faceVertices[3];
+	std::vector<glm::vec3> newResult;
+
+	for (unsigned int i = 0; i < result.size(); i+=3)
+	{
+		faceVertices[0] = result[i];
+		faceVertices[1] = result[i + 2];
+		faceVertices[2] = result[i + 1];
+
+		splitResults = DivideTriangle(faceVertices, remainingSubdivisons - 1);
+		newResult.insert(newResult.begin(), splitResults.begin(), splitResults.end());
+	}
+
+	return newResult;
+}
+
+std::vector<glm::vec3> OctahedronToSphere(std::vector<glm::vec3> octahedronVertices, glm::vec3 sphereCenter, float sphereRadius, int numSubdivisions)
+{
+	std::vector<glm::vec3> result;
+	result.reserve(pow(4, numSubdivisions) * 3 * 8);
+
+	int numVertices = octahedronVertices.size();
+
+	if (numVertices != 24)
+		return result;
+
+	std::vector<glm::vec3> splitResults;
+	glm::vec3 faceVertices[3];
+
+	for (unsigned int i = 0; i < numVertices; i += 3)
+	{
+		faceVertices[0] = octahedronVertices[i];
+		faceVertices[1] = octahedronVertices[i + 2];
+		faceVertices[2] = octahedronVertices[i + 1];
+
+		splitResults = DivideTriangle(faceVertices, numSubdivisions);
+		result.insert(result.begin(), splitResults.begin(), splitResults.end());
+	}
+
+	int finalVertexCount = result.size();
+	float distanceFromCenter;
+	glm::vec3 pointToCenterVector;
+	glm::vec3 newPoint, currentPoint;
+	for (int j = 0; j < 5; ++j)
+	for (unsigned int i = 0; i < finalVertexCount; ++i)
+	{
+		currentPoint = result[i];
+		distanceFromCenter = glm::distance(sphereCenter, result[i]);
+		pointToCenterVector = (result[i] - sphereCenter) * sphereRadius * (1/distanceFromCenter);
+		
+		//Weird/cool result 
+		//newPoint = result[i] + pointToCenterVector * (sphereRadius);
+		newPoint = sphereCenter + pointToCenterVector;
+		///printf("Radius is: %lf, Distance is: %lf, Distance was: %lf \n", sphereRadius, glm::length(newPoint - sphereCenter),glm::length(result[i] - sphereCenter));
+		result[i] = newPoint;
+		
+	}
+
+	return result;
+}
