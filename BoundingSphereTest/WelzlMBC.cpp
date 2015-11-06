@@ -337,15 +337,353 @@ Sphere WelzlMBC::UpdateSphereOne(std::vector<glm::vec3>& boundaryPoints, glm::ve
 }
 Sphere WelzlMBC::UpdateSphereTwo(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
-	return Sphere();
+	glm::vec3 point0 = boundaryPoints[0], point1 = boundaryPoints[1];
+	
+	Sphere spheres[2];
+	float minRad2 = std::numeric_limits<float>::max();
+	int index = -1;
+
+	// create circle from point 0 and p and see if point 1 is within it
+	spheres[0] = CreateSphere(point0, point);
+	if (spheres[0].IsInSphere(point1))
+	{
+		// keep it
+		minRad2 = spheres[0].GetRadius();
+		index = 0;
+	}
+
+	// create circle from point 1 and p and see if point 0 is within it
+	spheres[1] = CreateSphere(point1, point);
+	if (spheres[1].GetRadius() < minRad2 && spheres[1].IsInSphere(point0))
+	{
+		// keep it
+		minRad2 = spheres[1].GetRadius();
+		index = 1;
+	}
+
+	Sphere mins;
+	if (index != -1)
+	{
+		// one of the permutations contains all points, keep it
+		mins = spheres[index];
+		boundaryPoints[1 - index] = point;
+	}
+	else
+	{
+		// enlarge circle to encompass three points and add p to set
+		mins = CreateSphere(point0, point1, point);
+		boundaryPoints.push_back(point);
+	}
+	return mins;
 }
 Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
-	return Sphere();
+	// init a total of 6 possible circles
+	Sphere spheres[6];
+	float minRad2 = std::numeric_limits<float>::max();
+	int index = -1;
+
+	// init the points in the permutation tests
+	glm::vec3 p0 = boundaryPoints[0];
+	glm::vec3 p1 = boundaryPoints[1];
+	glm::vec3 p2 = boundaryPoints[2];
+	glm::vec3 p3 = point;
+
+	// construct a circle from p0 and p3 and check if p1 and p2 are inside it
+	spheres[0] = CreateSphere(p0, p3);
+	if (spheres[0].IsInSphere(p1) && spheres[0].IsInSphere(p2))
+	{
+		minRad2 = spheres[0].GetRadius();
+		index = 0;
+	}
+
+	// construct a circle from p1 and p3 and check if p0 and p2 are inside it
+	spheres[1] = CreateSphere(p1, p3);
+	if (spheres[1].GetRadius() < minRad2 &&
+		spheres[1].IsInSphere(p0) && spheres[1].IsInSphere(p2))
+	{
+		minRad2 = spheres[1].GetRadius();
+		index = 1;
+	}
+
+	// construct a circle from p2 and p3 and check if p0 and p1 are inside it
+	spheres[2] = CreateSphere(p2, p3);
+	if (spheres[2].GetRadius() < minRad2 &&
+		spheres[2].IsInSphere(p0) && spheres[2].IsInSphere(p1))
+	{
+		minRad2 = spheres[2].GetRadius();
+		index = 2;
+	}
+
+	// construct a circle from p0, p1 and p3 and check if p2 is inside it
+	spheres[3] = CreateSphere(p0, p1, p3);
+	if (spheres[3].GetRadius() < minRad2 && spheres[3].IsInSphere(p2))
+	{
+		minRad2 = spheres[3].GetRadius();
+		index = 3;
+	}
+
+	// construct a circle from p0, p2 and p3 and check if p1 is inside it
+	spheres[4] = CreateSphere(p0, p2, p3);
+	if (spheres[4].GetRadius() < minRad2 && spheres[4].IsInSphere(p1))
+	{
+		minRad2 = spheres[4].GetRadius();
+		index = 4;
+	}
+
+	// construct a circle from p1, p2 and p3 and check if p0 is inside it
+	spheres[5] = CreateSphere(p1, p2, p3);
+	if (spheres[5].GetRadius() < minRad2 && spheres[5].IsInSphere(p0))
+	{
+		minRad2 = spheres[5].GetRadius();
+		index = 5;
+	}
+
+	// get the minimum circle
+	Sphere mins = spheres[index];
+
+	// update set of support
+	switch (index)
+	{
+	case 0:
+		// two points, p replaces second point
+		boundaryPoints.resize(2);
+		boundaryPoints[1] = point;
+		break;
+	case 1:
+		// two points, p replaces first point
+		boundaryPoints.resize(2);
+		boundaryPoints[0] = point;
+		break;
+	case 2:
+	{
+		glm::vec3 temp = boundaryPoints[2];
+		boundaryPoints.resize(2);
+		boundaryPoints[0] = temp;
+		boundaryPoints[1] = point;
+		break;
+	}
+	case 3:
+		// three points, p replaces third point
+		boundaryPoints[2] = point;
+		break;
+	case 4:
+		// three points, p replaces second point
+		boundaryPoints[1] = point;
+		break;
+	case 5:
+		// three points, p replaces first point
+		boundaryPoints[0] = point;
+		break;
+	default:
+		mins = CreateSphere(p0, p1, p2, p3);
+		boundaryPoints.push_back(point);
+		break;
+	}
+
+	return mins;
 }
+
 Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
-	return Sphere();
+	// init a total of 6 possible circles
+	std::vector<Sphere> spheres;
+	spheres.reserve(14);
+	float minRad2 = std::numeric_limits<float>::max();
+	int index = -1;
+
+	bool pointsAreInSphere = false;
+	// init the points in the permutation tests
+	glm::vec3 p0 = boundaryPoints[0];
+	glm::vec3 p1 = boundaryPoints[1];
+	glm::vec3 p2 = boundaryPoints[2];
+	glm::vec3 p3 = boundaryPoints[3];
+	glm::vec3 p4 = point;
+
+	//Test 2 point spheres, 4 total
+	for (int i = 0; i < 4; ++i)
+	{
+		pointsAreInSphere = false;
+		spheres.push_back(CreateSphere(boundaryPoints[i], p4));
+		if (spheres.back().GetRadius() < minRad2)
+		{
+			pointsAreInSphere = true;
+			for (int j = 1; j < 4; ++j)
+			{
+				if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
+				{
+					pointsAreInSphere = false;
+					break;
+				}
+			}
+		}
+
+		if (pointsAreInSphere)
+		{
+			minRad2 = spheres.back().GetRadius();
+			index = spheres.size()-1;
+		}
+	}
+	
+	//Test 3 point spheres, 6 total
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int k = i + 1; k < 4; ++k)
+		{
+			pointsAreInSphere = false;
+			spheres.push_back(CreateSphere(boundaryPoints[i], boundaryPoints[k], p4));
+			if (spheres.back().GetRadius() < minRad2)
+			{
+				pointsAreInSphere = true;
+				for (int j = 1; j < 4; ++j)
+				{
+					if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
+					{
+						pointsAreInSphere = false;
+						break;
+					}
+				}
+			}
+
+			if (pointsAreInSphere)
+			{
+				minRad2 = spheres.back().GetRadius();
+				index = spheres.size() - 1;
+			}
+		}
+	}
+	
+	//Test 4 point sphere, 4 total
+	for (int i = 0; i < 4; ++i)
+	{
+		pointsAreInSphere = false;
+		spheres.push_back(CreateSphere(boundaryPoints[i], boundaryPoints[(i + 1) % 4], boundaryPoints[(i + 2) % 4], p4));
+		if (spheres.back().GetRadius() < minRad2)
+		{
+			pointsAreInSphere = true;
+			for (int j = 1; j < 4; ++j)
+			{
+				if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
+				{
+					pointsAreInSphere = false;
+					break;
+				}
+			}
+		}
+
+		if (pointsAreInSphere)
+		{
+			minRad2 = spheres.back().GetRadius();
+			index = spheres.size() - 1;
+		}
+	}
+
+	Sphere mins = spheres[index];
+
+	// update set of support
+	switch (index)
+	{
+	case 0:
+		// two points, p replaces second point
+		boundaryPoints.resize(2);
+		boundaryPoints[1] = point;
+		break;
+	case 1:
+		// two points, p replaces first point
+		boundaryPoints.resize(2);
+		boundaryPoints[0] = point;
+		break;
+	case 2:
+	{
+		glm::vec3 temp = boundaryPoints[2];
+		boundaryPoints.resize(2);
+		boundaryPoints[0] = temp;
+		boundaryPoints[1] = point;
+		break;
+	}
+	case 3:
+	{
+		glm::vec3 temp = boundaryPoints[3];
+		boundaryPoints.resize(2);
+		boundaryPoints[0] = temp;
+		boundaryPoints[1] = point;
+		break;
+	}
+	case 4:
+		// three points, p replaces third point
+	{
+		boundaryPoints.resize(3);
+		boundaryPoints[2] = point;
+		break;
+	}
+		
+	case 5:
+		// three points, p replaces second point
+	{
+		glm::vec3 temp = boundaryPoints[2];
+		boundaryPoints.resize(3);
+		boundaryPoints[1] = temp;
+		boundaryPoints[2] = point;
+		break;
+	}
+	case 6:
+		// three points, p replaces second point
+	{
+		glm::vec3 temp = boundaryPoints[3];
+		boundaryPoints.resize(3);
+		boundaryPoints[1] = temp;
+		boundaryPoints[2] = point;
+		break;
+	}
+	case 7:
+	{
+		glm::vec3 temp1 = boundaryPoints[1];
+		glm::vec3 temp2 = boundaryPoints[2];
+		boundaryPoints.resize(3);
+		boundaryPoints[0] = temp1;
+		boundaryPoints[1] = temp2;
+		boundaryPoints[2] = point;
+		break;
+	}
+	case 8:
+	{
+		glm::vec3 temp1 = boundaryPoints[1];
+		glm::vec3 temp2 = boundaryPoints[3];
+		boundaryPoints.resize(3);
+		boundaryPoints[0] = temp1;
+		boundaryPoints[1] = temp2;
+		boundaryPoints[2] = point;
+		break;
+	}
+	case 9:
+	{
+		glm::vec3 temp1 = boundaryPoints[2];
+		glm::vec3 temp2 = boundaryPoints[3];
+		boundaryPoints.resize(3);
+		boundaryPoints[0] = temp1;
+		boundaryPoints[1] = temp2;
+		boundaryPoints[2] = point;
+		break;
+	}
+	case 10:
+		// three points, p replaces third point
+		boundaryPoints[3] = point;
+		break;
+	case 11:
+		std::rotate(boundaryPoints.begin(), boundaryPoints.begin() + 1,boundaryPoints.end());
+		boundaryPoints[3] = point;
+		break;
+	case 12:
+		std::rotate(boundaryPoints.begin(), boundaryPoints.begin() + 2, boundaryPoints.end());
+		boundaryPoints[3] = point;
+		break;
+	case 13:
+		std::rotate(boundaryPoints.begin(), boundaryPoints.begin() + 3, boundaryPoints.end());
+		boundaryPoints[3] = point;
+		break;
+	}
+
+	return mins;
 }
 	  		   
 Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2)
@@ -404,20 +742,74 @@ Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2, glm::vec3 poin
 {
 	Sphere result;
 
-	glm::vec3 a = point2 - point1;
-	glm::vec3 b = point3 - point1;
-	glm::vec3 c = point4 - point1;
+	glm::mat4x4 matrix;
+	float radius, m11, m12, m13, m14, m15;
+	glm::vec3 center;
+	unsigned int i;
 
-	float denom = 2.0f * glm::determinant(glm::mat3x3(a.x, a.y, a.z,
-													  b.x, b.y, b.z,
-      												  c.x, c.y, c.z));
+	std::vector<glm::vec3> points = { point1, point2, point3, point4 };
 
-	glm::vec3 o = ((c * c) * (glm::cross(a, b)) +
-		(b * b) * (glm::cross(a, b)) +
-		(a * b) * (glm::cross(b, c))) / denom;
+	for (i = 0; i < 4; ++i)
+	{
+		matrix[i][0] = points[i].x;
+		matrix[i][1] = points[i].y;
+		matrix[i][2] = points[i].z;
+		matrix[i][3] = 1;
+	}
+	m11 = glm::determinant(matrix);
 
-	result.SetRadius(glm::length(o));// + EPSILON);
-	result.SetCenter(point1 + o);
+	for (i = 0; i < 4; ++i)
+	{
+		matrix[i][0] = points[i].x * points[i].x + points[i].y * points[i].y + points[i].z * points[i].z;
+		matrix[i][1] = points[i].y;
+		matrix[i][2] = points[i].z;
+		matrix[i][3] = 1;
+	}
+	m12 = glm::determinant(matrix);
+
+	for (i = 0; i < 4; ++i)
+	{
+		matrix[i][0] = points[i].x * points[i].x + points[i].y * points[i].y + points[i].z * points[i].z;
+		matrix[i][1] = points[i].x;
+		matrix[i][2] = points[i].z;
+		matrix[i][3] = 1;
+	}
+	m13 = glm::determinant(matrix);
+
+	for (i = 0; i < 4; ++i)
+	{
+		matrix[i][0] = points[i].x * points[i].x + points[i].y * points[i].y + points[i].z * points[i].z;
+		matrix[i][1] = points[i].x;
+		matrix[i][2] = points[i].y;
+		matrix[i][3] = 1;
+	}
+	m14 = glm::determinant(matrix);
+
+	for (i = 0; i < 4; ++i)
+	{
+		matrix[i][0] = points[i].x * points[i].x + points[i].y * points[i].y + points[i].z * points[i].z;
+		matrix[i][1] = points[i].x;
+		matrix[i][2] = points[i].y;
+		matrix[i][3] = points[i].z;
+	}
+	m15 = glm::determinant(matrix);
+
+	if (m11 == 0)
+	{
+		radius = 0;
+		center = point1;
+	}
+	else
+	{
+		center.x = 0.5 * m12 / m11;
+		center.y = -0.5 * m13 / m11;
+		center.z = 0.5 * m14 / m11;
+		radius = sqrt(center.x * center.x + center.y * center.y + center.z * center.z - m15 / m11);
+	}				  
+	
+
+	result.SetRadius(radius);
+	result.SetCenter(center);
 
 	return result;
 }

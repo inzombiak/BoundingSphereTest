@@ -2,6 +2,8 @@
 #include "WelzlMBC.h"
 #include "HelperFunctions.h"
 
+#include <chrono>
+
 #include <random>
 
 void ObjectManager::Init()
@@ -39,26 +41,14 @@ void ObjectManager::GenerateRandomPoints2D(int numberOfPoints, glm::vec2 xBounds
 
 void ObjectManager::GenerateRandomPoints3D(int numberOfPoints, glm::vec2 xBounds, glm::vec2 yBounds, glm::vec2 zBounds)
 {
-	//glm::vec3 position;
+	glm::vec3 position;
 	glm::vec3 color(0.0f, 0.0f, 1.0f);
-	//for (unsigned int i = 0; i < numberOfPoints; i++)
-	//{
-	//	position = CalcRandomPosition(xBounds, yBounds, zBounds);
-	//	Point newPoint(position, color, m_renderManager.CreateRenderComponent());
-	//	m_points.push_back(newPoint);
-	//}
-
-	glm::vec3 point1(0.5, 0, 0), point2(-0.5, 0, 0), point3(0.5, 0.5, 0), point4(-0.5, 0.5, 0);
-
-	Point test1(point1, color, m_renderManager.CreateRenderComponent()), test2(point2, color, m_renderManager.CreateRenderComponent()), test3(point3, color, m_renderManager.CreateRenderComponent()), test4(point4, color, m_renderManager.CreateRenderComponent());
-	WelzlMBC testMBC;
-	//Sphere test2Points = testMBC.CreateSphere(test1.GetPosition(), test2.GetPosition());
-	//test2Points.SetRenderComponent(m_renderManager.CreateRenderComponent());
-
-	Sphere test4Points = testMBC.CreateSphere(test1.GetPosition(), test2.GetPosition(), test3.GetPosition(), test4.GetPosition());
-	//Circle test3PointsCircle = testMBC.CreateCircle(test1.GetPosition(), test2.GetPosition(), test3.GetPosition());
-	//test3PointsCircle.SetRenderComponent(m_renderManager.CreateRenderComponent());
-	test4Points.SetRenderComponent(m_renderManager.CreateRenderComponent());
+	for (unsigned int i = 0; i < numberOfPoints; i++)
+	{
+		position = CalcRandomPosition(xBounds, yBounds, zBounds);
+		Point newPoint(position, color, m_renderManager.CreateRenderComponent());
+		m_points.push_back(newPoint);
+	}
 
 	m_is3D = true;
 }
@@ -83,13 +73,29 @@ void ObjectManager::CalculateBoundingShape()
 
 	if (!m_is3D)
 	{
+		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 		m_boundingCircle = welzlCalculator.CalculateMinBoundingCircle(m_points);
+		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+		auto diff = t2 - t1;
+
+		auto duration = std::chrono::duration<double, std::ratio<1, 1>>(diff).count();
+
+		printf("MBC Time: %lf \n", duration);
 		m_boundingCircle.SetRenderComponent(m_renderManager.CreateRenderComponent());
 		m_boundingCircle.SetColor(glm::vec3(0.0f, 0.0f, 0.0f));
+
+		
 	}
 	else
 	{
+		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 		m_boundingSphere = welzlCalculator.CalculateMinBoundingSphere(m_points);
+		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+		auto diff =  t2 - t1;
+
+		auto duration = std::chrono::duration<double, std::ratio<1,1>> (diff).count();
+
+		printf("MBS Time: %lf \n", duration);
 		m_boundingSphere.SetRenderComponent(m_renderManager.CreateRenderComponent());
 		m_boundingCircle.SetColor(glm::vec3(1.0f, 1.0f, 0.0f));
 	}

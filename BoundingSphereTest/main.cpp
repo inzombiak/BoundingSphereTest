@@ -13,7 +13,7 @@
 
 #include "ObjectManager.h"
 
-const int NUMBER_OF_POINTS = 4000;
+const int NUMBER_OF_POINTS = 12;
 
 int m_x = 0, m_y = 0;
 float m_yRotate = 0.f, m_xRotate = 3.14f, deltaTime = 1;
@@ -70,6 +70,7 @@ void keyboard(unsigned char key, int x, int y)
 	case 'w':
 		position += direction  * speed;
 		glutPostRedisplay();
+		return;
 	case 'c':
 		m_om.CalculateBoundingShape();
 		glutPostRedisplay();

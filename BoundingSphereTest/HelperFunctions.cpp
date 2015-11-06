@@ -573,7 +573,7 @@ std::vector<glm::vec3> OctahedronToSphere(std::vector<glm::vec3> octahedronVerti
 	float distanceFromCenter;
 	glm::vec3 pointToCenterVector;
 	glm::vec3 newPoint, currentPoint;
-	for (int j = 0; j < 5; ++j)
+	for (int j = 0; j < 8; ++j)
 	for (unsigned int i = 0; i < finalVertexCount; ++i)
 	{
 		currentPoint = result[i];
