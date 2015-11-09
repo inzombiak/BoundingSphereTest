@@ -1,27 +1,51 @@
-﻿Build started 11/6/2015 6:52:30 PM.
+﻿Build started 11/9/2015 7:13:45 PM.
      1>Project "C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Circle.cpp HelperFunctions.cpp main.cpp ObjectManager.cpp Point.cpp RenderComponent.cpp RenderManager.cpp Sphere.cpp WelzlMBC.cpp
-         Circle.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\RenderComponent.h(6): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
-         HelperFunctions.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\HelperFunctions.h(4): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
-         main.cpp
-     1>main.cpp(6): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\GLM\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ObjectManager.cpp Point.cpp RenderManager.cpp WelzlMBC.cpp main.cpp
          ObjectManager.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\ObjectManager.h(3): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
+     1>ObjectManager.cpp(69): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>ObjectManager.cpp(70): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>ObjectManager.cpp(71): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
          Point.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\Point.h(2): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
-         RenderComponent.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\RenderComponent.h(6): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
          RenderManager.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\RenderComponent.h(6): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
-         Sphere.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\RenderComponent.h(6): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
          WelzlMBC.cpp
-     1>c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\RenderComponent.h(6): fatal error C1083: Cannot open include file: 'glm\glm.hpp': No such file or directory
-     1>Done Building Project "C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" (Build target(s)) -- FAILED.
+     1>WelzlMBC.cpp(58): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(246): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(272): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(723): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(724): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(725): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(822): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(823): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>WelzlMBC.cpp(824): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+         main.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.exe" /INCREMENTAL:NO /NOLOGO glew32s.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.pdb" /SUBSYSTEM:CONSOLE /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.lib" /MACHINE:X86 /SAFESEH Release\Circle.obj
+         Release\HelperFunctions.obj
+         Release\main.obj
+         Release\ObjectManager.obj
+         Release\Point.obj
+         Release\RenderComponent.obj
+         Release\RenderManager.obj
+         Release\Sphere.obj
+         Release\WelzlMBC.obj
+         Generating code
+         Finished generating code
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewAttachShader imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewCompressedTexImage2D imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewCreateProgram imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewGetProgramInfoLog imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewGetShaderiv imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewGetProgramiv imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewShaderSource imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewDetachShader imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewCompileShader imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewLinkProgram imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewGetShaderInfoLog imported
+     1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewCreateShader imported
+         BoundingSphereTest.vcxproj -> C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.exe
+     1>Done Building Project "C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" (Build target(s)).
 
-Build FAILED.
+Build succeeded.
 
-Time Elapsed 00:00:03.12
+Time Elapsed 00:00:06.61

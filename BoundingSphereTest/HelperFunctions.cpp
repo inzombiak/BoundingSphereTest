@@ -549,9 +549,9 @@ std::vector<glm::vec3> DivideTriangle(glm::vec3 originalVertices[3],  int remain
 std::vector<glm::vec3> OctahedronToSphere(std::vector<glm::vec3> octahedronVertices, glm::vec3 sphereCenter, float sphereRadius, int numSubdivisions)
 {
 	std::vector<glm::vec3> result;
-	result.reserve(pow(4, numSubdivisions) * 3 * 8);
+	result.reserve(unsigned int (pow(4, numSubdivisions) * 3 * 8));
 
-	int numVertices = octahedronVertices.size();
+	unsigned int numVertices = octahedronVertices.size();
 
 	if (numVertices != 24)
 		return result;

@@ -9,7 +9,7 @@ Circle WelzlMBC::CalculateMinBoundingCircle(std::vector<Point> points)
 	minCircle.SetCenter(points[0].GetPosition());
 	minCircle.SetRadius(0);
 	// inital condition - circle with one point
-	int index = 1;
+	unsigned int index = 1;
 	boundaryPoints.push_back(points[0].GetPosition());
 	glm::vec3 pi;
 	while (index < points.size())
@@ -44,9 +44,9 @@ bool WelzlMBC::SupportSetContains(std::vector<glm::vec3> boundaryPoints, glm::ve
 	bool result = false;
 
 	unsigned int size = boundaryPoints.size();
-	glm::vec3 testPoint;
+	glm::vec3 testPoint(0.0f);
 
-	double dx, dy, dz;
+	double dx = 0, dy = 0, dz = 0;
 
 	for (unsigned int i = 0; i < size; ++i)
 	{
@@ -282,11 +282,14 @@ Sphere WelzlMBC::CalculateMinBoundingSphere(std::vector<Point> points)
 	minSphere.SetCenter(points[0].GetPosition());
 	minSphere.SetRadius(0);
 	// inital condition - circle with one point
-	int index = 1;
+	unsigned int index = 1;
+	unsigned int programSteps = 0;
 	boundaryPoints.push_back(points[0].GetPosition());
 	glm::vec3 pi;
 	while (index < points.size())
 	{
+		//printf("ProgramStep: %u \n", programSteps);
+		programSteps++;
 		// check if the support set doesn't contain the point processed
 		// a point in the set is a point that has triggered an update, ignore it
 		pi = points[index].GetPosition();
@@ -388,7 +391,9 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 	glm::vec3 p1 = boundaryPoints[1];
 	glm::vec3 p2 = boundaryPoints[2];
 	glm::vec3 p3 = point;
-
+	index = -1;
+//	printf("Index: %u", index);
+	
 	// construct a circle from p0 and p3 and check if p1 and p2 are inside it
 	spheres[0] = CreateSphere(p0, p3);
 	if (spheres[0].IsInSphere(p1) && spheres[0].IsInSphere(p2))
@@ -438,9 +443,17 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		minRad2 = spheres[5].GetRadius();
 		index = 5;
 	}
-
+	//printf("Index 2: %u", index);
 	// get the minimum circle
-	Sphere mins = spheres[index];
+	Sphere mins;
+	if (index == -1)
+	{
+		mins = CreateSphere(p0, p1, p2, p3);
+		boundaryPoints.push_back(point);
+		return mins;
+	}
+
+	mins = spheres[index];
 
 	// update set of support
 	switch (index)
@@ -475,10 +488,6 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		// three points, p replaces first point
 		boundaryPoints[0] = point;
 		break;
-	default:
-		mins = CreateSphere(p0, p1, p2, p3);
-		boundaryPoints.push_back(point);
-		break;
 	}
 
 	return mins;
@@ -500,18 +509,22 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 	glm::vec3 p3 = boundaryPoints[3];
 	glm::vec3 p4 = point;
 
+	//printf("\n *********2 Point Spheres****** \n");
 	//Test 2 point spheres, 4 total
 	for (int i = 0; i < 4; ++i)
 	{
 		pointsAreInSphere = false;
 		spheres.push_back(CreateSphere(boundaryPoints[i], p4));
+		//printf("2 Point Sphere: (p%u,p4) \n", i);
 		if (spheres.back().GetRadius() < minRad2)
 		{
 			pointsAreInSphere = true;
 			for (int j = 1; j < 4; ++j)
 			{
+			//	printf("Testing for point p%u \n", (i + j) % 4);
 				if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
 				{
+					//printf("!!!!Point %u not in sphere \n", (i + j) % 4);
 					pointsAreInSphere = false;
 					break;
 				}
@@ -524,21 +537,24 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 			index = spheres.size()-1;
 		}
 	}
-	
+//	printf("\n *********3 Point Spheres****** \n");
 	//Test 3 point spheres, 6 total
 	for (int i = 0; i < 4; ++i)
 	{
 		for (int k = i + 1; k < 4; ++k)
 		{
 			pointsAreInSphere = false;
+			//printf("3 Point Sphere: (p%u,p%u,p4) \n", i, k);
 			spheres.push_back(CreateSphere(boundaryPoints[i], boundaryPoints[k], p4));
 			if (spheres.back().GetRadius() < minRad2)
 			{
 				pointsAreInSphere = true;
-				for (int j = 1; j < 4; ++j)
+ 				for (int j = 1; j < 4; ++j)
 				{
+					//printf("Testing for point p%u \n", (i + j) % 4);
 					if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
 					{
+						//printf("!!!!Point %u not in sphere \n", (i + j) % 4);
 						pointsAreInSphere = false;
 						break;
 					}
@@ -552,19 +568,23 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 			}
 		}
 	}
-	
+
+	//printf("\n *********4 Point Spheres****** \n");
 	//Test 4 point sphere, 4 total
 	for (int i = 0; i < 4; ++i)
 	{
 		pointsAreInSphere = false;
+		//printf("4 Point Sphere: (p%u, p%u, p%u, p4) \n", i, (i + 1) % 4, (i + 2) % 4);
 		spheres.push_back(CreateSphere(boundaryPoints[i], boundaryPoints[(i + 1) % 4], boundaryPoints[(i + 2) % 4], p4));
 		if (spheres.back().GetRadius() < minRad2)
 		{
 			pointsAreInSphere = true;
 			for (int j = 1; j < 4; ++j)
 			{
+				//printf("Testing for point p%u \n", (i + j) % 4);
 				if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
 				{
+					//printf("!!!!Point %u not in sphere \n", (i + j) % 4);
 					pointsAreInSphere = false;
 					break;
 				}
@@ -577,6 +597,9 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 			index = spheres.size() - 1;
 		}
 	}
+
+	if (index == -1)
+		return Sphere();
 
 	Sphere mins = spheres[index];
 
@@ -688,18 +711,18 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 	  		   
 Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2)
 {
-	Sphere result;
+	Sphere result = Sphere();
 
-	double p1x = point1.x;
-	double p1y = point1.y;
-	double p1z = point1.z;
-	double p2x = point2.x;
-	double p2y = point2.y;
-	double p2z = point2.z;
+	float p1x = point1.x;
+	float p1y = point1.y;
+	float p1z = point1.z;
+	float p2x = point2.x;
+	float p2y = point2.y;
+	float p2z = point2.z;
 
-	double cx = 0.5*(p1x + p2x);
-	double cy = 0.5*(p1y + p2y);
-	double cz = 0.5*(p1z + p2z);
+	float cx = 0.5*(p1x + p2x);
+	float cy = 0.5*(p1y + p2y);
+	float cz = 0.5*(p1z + p2z);
 
 	result.SetCenter(glm::vec3(cx, cy, cz));
 	result.SetRadius(sqrt((p1x - cx)*(p1x - cx) + (p1y - cy)*(p1y - cy) + (p1z - cz)*(p1z - cz)));
@@ -708,31 +731,26 @@ Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2)
 }
 Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3)
 {
-	Sphere result;
-	glm::vec3 vec12, vec23, vec31, vec21, vec32, vec13;
+	Sphere result = Sphere();
 
-	vec12 = point1 - point2;
-	vec23 = point2 - point3;
-	vec31 = point3 - point1;
-	vec21 = point2 - point1;
-	vec32 = point3 - point2;
-	vec13 = point1 - point3;
+	glm::vec3 vec12 = point1 - point2;
+	glm::vec3 vec23 = point2 - point3;
+	glm::vec3 vec31 = point3 - point1;
+	glm::vec3 vec21 = point2 - point1;
+	glm::vec3 vec32 = point3 - point2;
+	glm::vec3 vec13 = point1 - point3;
 
-	float d12, d23, d31;
-
-	d12 = glm::length(vec12);
-	d23 = glm::length(vec23);
-	d31 = glm::length(vec31);
+	float d12 = glm::length(vec12);
+	float d23 = glm::length(vec23);
+	float d31 = glm::length(vec31);
 
 	float normalLength = glm::length(glm::cross(vec12, vec23));
 	float normalLengthSqr = normalLength * normalLength;
 	float radius = (d12*d23*d31) / (2 * normalLength);
 
-	float a, b, c;
-
-	a = (d23 * d23) * (glm::dot(vec12, vec13)) / (2 * normalLengthSqr);
-	b = (d31 * d31) * (glm::dot(vec21, vec23)) / (2 * normalLengthSqr);
-	c = (d12 * d12) * (glm::dot(vec31, vec32)) / (2 * normalLengthSqr);
+	float a = (d23 * d23) * (glm::dot(vec12, vec13)) / (2 * normalLengthSqr);
+	float b = (d31 * d31) * (glm::dot(vec21, vec23)) / (2 * normalLengthSqr);
+	float c = (d12 * d12) * (glm::dot(vec31, vec32)) / (2 * normalLengthSqr);
 
 	result.SetCenter(a * point1 + b * point2 + c * point3);
 	result.SetRadius(radius);
@@ -740,12 +758,12 @@ Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2, glm::vec3 poin
 }
 Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, glm::vec3 point4)
 {
-	Sphere result;
+	Sphere result = Sphere();
 
-	glm::mat4x4 matrix;
-	float radius, m11, m12, m13, m14, m15;
-	glm::vec3 center;
-	unsigned int i;
+	glm::mat4x4 matrix (0.0f);
+	float radius = 0, m11 = 0, m12 = 0, m13 = 0, m14 = 0, m15 = 0;
+	glm::vec3 center(0.0f);
+	int i = 0;
 
 	std::vector<glm::vec3> points = { point1, point2, point3, point4 };
 

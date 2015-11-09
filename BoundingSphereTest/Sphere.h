@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderComponent.h"
 #include <glm\glm.hpp>
+#include "glm\gtx\norm.hpp"
 
 class Sphere
 {
@@ -52,7 +53,8 @@ public:
 
 	bool IsInSphere(glm::vec3 point)
 	{
-		return ((m_center.x - point.x)*(m_center.x - point.x) + (m_center.y - point.y)*(m_center.y - point.y) + (m_center.z - point.z)*(m_center.z - point.z) <= m_radius * m_radius);
+		double distance = glm::distance2(m_center, point);
+		return (distance - m_radius*m_radius) < 0.0001;
 	}
 
 private:

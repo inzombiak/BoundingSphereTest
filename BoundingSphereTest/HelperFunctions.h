@@ -7,39 +7,21 @@
 #include <string>
 #include <vector>
 
-GLuint LoadDDS(std::string filepath);
-GLuint LoadBMP(std::string filepath);
-
-std::vector<glm::vec2> FloatVecToGLMVec2(std::vector<float> vec);
-std::vector<glm::vec3> FloatVecToGLMVec3(std::vector<float> vec);
-void computeTangentBasis(
-	std::vector<glm::vec3> & vertices,
-	std::vector<glm::vec2> & uvs,
-	std::vector<glm::vec3> & normals,
-	std::vector<glm::vec3> & tangents,
-	std::vector<glm::vec3> & bitangents);
-
-void indexVBO_TBN(
-	std::vector<glm::vec3> & in_vertices,
-	std::vector<glm::vec2> & in_uvs,
-	std::vector<glm::vec3> & in_normals,
-	std::vector<glm::vec3> & in_tangents,
-	std::vector<glm::vec3> & in_bitangents,
-
-	std::vector<unsigned short> & out_indices,
-	std::vector<glm::vec3> & out_vertices,
-	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals,
-	std::vector<glm::vec3> & out_tangents,
-	std::vector<glm::vec3> & out_bitangents);
-
+//Shader compliation helped funcitons
+//Reads a file to a std::string
 std::string ReadFileToString(const char* filePath);
+//Creates a GLenum type shader from a string
 GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile);
+//Compiles shaders into a program
 GLuint CreateProgram(const std::vector<GLuint> &shaderList);
 
+//Sphere generation functions
+//Creates an octohedron using a center and radius
 std::vector<glm::vec3> CreateOctahedronWithRadius(glm::vec3 center, float radius);
+//Creates an octohedron using a center and side length
 std::vector<glm::vec3> CreateOctahedronWithSide(glm::vec3 center, float side);
 
-//Splits an equilater triangle into 4 equilateral parts
+//Splits an equilater triangle into 4 equilateral parts. First varable is an array of the 3 vertices of the triangle, 2nd variable is the number of remaining subdivisions
 std::vector<glm::vec3> DivideTriangle(glm::vec3 octahedronVertices[3], int remainingSubdivisons);
+//Converts an octohedron with the given faces(provided as individual vertices) to a sphere with the given center and radius. Number of subdivisions is number of times each face should be divided
 std::vector<glm::vec3> OctahedronToSphere(std::vector<glm::vec3> octahedronFaces, glm::vec3 sphereCenter, float sphereRadius, int numSubdivisions);

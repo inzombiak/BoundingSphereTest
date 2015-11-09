@@ -13,37 +13,58 @@
 
 #include "ObjectManager.h"
 
-const int NUMBER_OF_POINTS = 12;
+//Number of points to be genereated
+const int NUMBER_OF_POINTS = 6;
 
-int m_x = 0, m_y = 0;
-float m_yRotate = 0.f, m_xRotate = 3.14f, deltaTime = 1;
+//Camera rotation along x and y axes
+float m_yRotate = 0.f, m_xRotate = 3.14f;
+float deltaTime = 1;
+
+//Should draw 2D or 3D
 bool m_draw3D = false;
-// position
+
+//X, Y and Z bounds for the random points
+glm::vec2 m_xBounds(-0.7, 0.7);
+glm::vec2 m_yBounds(-0.7, 0.7);
+glm::vec2 m_zBounds(-0.7, 0.7);
+
+//Used for camera speed and positioning
 glm::vec3 position = glm::vec3(0, 0, 10), right, up, direction;
 float speed = 1.0f;
 float mouseSpeed = 0.005f;
 
+//Object manager
 ObjectManager m_om;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
+	//Initalize the object manager
 	m_om.Init();
 
+	//Depending on draw mode generate either 2D or 3D points
 	if (!m_draw3D)
-		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, m_xBounds, m_yBounds);
 	else
-		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, m_xBounds, m_yBounds, m_zBounds);
 }
 
 void reInit()
 {
+	//Clear existing data
 	m_om.Clear();
 
+	//Reset camera
+	m_yRotate = 0.f;
+	m_xRotate = 3.14f;
+	deltaTime = 1;
+	position = glm::vec3(0, 0, 10);
+
+	//Regenerate points
 	if (!m_draw3D)
-		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, m_xBounds, m_yBounds);
 	else
-		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7), glm::vec2(-0.7, 0.7));
+		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, m_xBounds, m_yBounds, m_zBounds);
 
 	glutPostRedisplay();
 }
@@ -88,7 +109,7 @@ void keyboard(unsigned char key, int x, int y)
 
 void display()
 {
-
+	//Calculate camera settings
 	direction = glm::vec3(
 		cos(m_yRotate) * sin(m_xRotate),
 		sin(m_yRotate),
@@ -102,28 +123,27 @@ void display()
 		);
 	up = glm::cross(right, direction);
 	
+	//Draw screen
 	m_om.Draw(position, direction, up);
 }
 
-void mouse(int button, int state, int x, int y)
-{
-
-	switch (button)
-	{
-	}
-}
 void drag(int x, int y)
 {
+	//Rotate camera based on mouse movement
 	m_xRotate += mouseSpeed * float(glutGet(GLUT_WINDOW_WIDTH) / 2 - x);
 	m_yRotate += mouseSpeed * float(glutGet(GLUT_WINDOW_HEIGHT) / 2 - y);
 
+	//Redisplay
 	display();
+
+	//Keep mouse centered in window
 	if (x != glutGet(GLUT_WINDOW_WIDTH) / 2 || y != glutGet(GLUT_WINDOW_HEIGHT) / 2)
 		glutWarpPointer(glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2);
 }
 
 int main(int argc, char **argv)
 {
+	//OpenGL and GLUT initialization
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(500, 500);
@@ -133,7 +153,6 @@ int main(int argc, char **argv)
 	glewInit();
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
-	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(drag);
 	init();
 	glutMainLoop();
