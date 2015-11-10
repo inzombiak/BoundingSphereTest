@@ -14,7 +14,7 @@
 #include "ObjectManager.h"
 
 //Number of points to be genereated
-const int NUMBER_OF_POINTS = 6;
+int m_numberOfPoints = 6;
 
 //Camera rotation along x and y axes
 float m_yRotate = 0.f, m_xRotate = 3.14f;
@@ -29,7 +29,7 @@ glm::vec2 m_yBounds(-0.7, 0.7);
 glm::vec2 m_zBounds(-0.7, 0.7);
 
 //Used for camera speed and positioning
-glm::vec3 position = glm::vec3(0, 0, 10), right, up, direction;
+glm::vec3 position = glm::vec3(0, 0, 5), right, up, direction;
 float speed = 1.0f;
 float mouseSpeed = 0.005f;
 
@@ -44,9 +44,9 @@ void init()
 
 	//Depending on draw mode generate either 2D or 3D points
 	if (!m_draw3D)
-		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, m_xBounds, m_yBounds);
+		m_om.GenerateRandomPoints2D(m_numberOfPoints, m_xBounds, m_yBounds);
 	else
-		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, m_xBounds, m_yBounds, m_zBounds);
+		m_om.GenerateRandomPoints3D(m_numberOfPoints, m_xBounds, m_yBounds, m_zBounds);
 }
 
 void reInit()
@@ -58,13 +58,13 @@ void reInit()
 	m_yRotate = 0.f;
 	m_xRotate = 3.14f;
 	deltaTime = 1;
-	position = glm::vec3(0, 0, 10);
+	position = glm::vec3(0, 0, 5);
 
 	//Regenerate points
 	if (!m_draw3D)
-		m_om.GenerateRandomPoints2D(NUMBER_OF_POINTS, m_xBounds, m_yBounds);
-	else
-		m_om.GenerateRandomPoints3D(NUMBER_OF_POINTS, m_xBounds, m_yBounds, m_zBounds);
+		m_om.GenerateRandomPoints2D(m_numberOfPoints, m_xBounds, m_yBounds);
+	else							
+		m_om.GenerateRandomPoints3D(m_numberOfPoints, m_xBounds, m_yBounds, m_zBounds);
 
 	glutPostRedisplay();
 }
@@ -143,6 +143,10 @@ void drag(int x, int y)
 
 int main(int argc, char **argv)
 {
+
+	std::cout << "Enter number of points, please use integer numbers: ";
+	std::cin >> m_numberOfPoints;
+
 	//OpenGL and GLUT initialization
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);

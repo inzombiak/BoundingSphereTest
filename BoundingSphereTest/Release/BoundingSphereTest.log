@@ -1,32 +1,7 @@
-﻿Build started 11/10/2015 3:16:29 PM.
+﻿Build started 11/10/2015 4:27:24 PM.
      1>Project "C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\GLM\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Circle.cpp HelperFunctions.cpp ObjectManager.cpp Point.cpp RenderComponent.cpp RenderManager.cpp Sphere.cpp WelzlMBC.cpp main.cpp
-         Circle.cpp
-     1>Circle.cpp(26): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-         HelperFunctions.cpp
-     1>HelperFunctions.cpp(95): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>HelperFunctions.cpp(108): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>HelperFunctions.cpp(111): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
-     1>HelperFunctions.cpp(194): warning C4018: '<' : signed/unsigned mismatch
-         ObjectManager.cpp
-     1>ObjectManager.cpp(69): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>ObjectManager.cpp(70): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>ObjectManager.cpp(71): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-         Point.cpp
-         RenderComponent.cpp
-         RenderManager.cpp
-         Sphere.cpp
-         WelzlMBC.cpp
-     1>WelzlMBC.cpp(21): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(252): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(280): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(728): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(729): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(730): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(827): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(828): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>WelzlMBC.cpp(829): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\GLM\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
          main.cpp
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.exe" /INCREMENTAL:NO /NOLOGO glew32s.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.pdb" /SUBSYSTEM:CONSOLE /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.lib" /MACHINE:X86 /SAFESEH Release\Circle.obj
@@ -56,4 +31,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:13.90
+Time Elapsed 00:00:03.30
