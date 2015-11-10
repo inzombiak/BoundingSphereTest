@@ -6,10 +6,15 @@ The code is based on the gamedev.net article Welzl - http://www.gamedev.net/page
 
 Controls:
 R - generates new random points
+
 C - calculates bounding shape
-F - swtichesb etween 2D and 3D
+
+F - swtiches between 2D and 3D
+
 In 3D mode
+
 W,A,S,D - moves camera
+
 Mouse - rotates camera
 
 
