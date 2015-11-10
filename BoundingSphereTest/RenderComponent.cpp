@@ -3,8 +3,10 @@
 
 void RenderComponent::Draw(glm::mat4 mvp)
 {
+	//Set program
 	glUseProgram(m_program);
 
+	//Enable attributes for use
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
 	glVertexAttribPointer(
@@ -27,14 +29,17 @@ void RenderComponent::Draw(glm::mat4 mvp)
 		(void*)0
 		);
 
+	//Set draw mode
 	if (m_drawPrimitive == GL_POINTS)
 		glPolygonMode(GL_FRONT, GL_POINT);
 	else
 		glPolygonMode(GL_FRONT, GL_LINE);
 
+	//Pass in MVP
 	GLuint MVPMatID = glGetUniformLocation(m_program, "MVP");
 	glUniformMatrix4fv(MVPMatID, 1, GL_FALSE, &mvp[0][0]);
 
+	//Draw
 	glDrawArrays(m_drawPrimitive, 0, m_numVertices);
 }
 
@@ -45,9 +50,11 @@ void RenderComponent::SetProgram(GLuint program)
 
 void RenderComponent::SetVertices(std::vector<glm::vec3> vertices)
 {
+	//If not buffer exists, create one
 	if (m_vertexBufferObject == 0)
 		glGenBuffers(1, &m_vertexBufferObject);
 
+	//Set data
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 	m_numVertices = vertices.size();
@@ -55,6 +62,7 @@ void RenderComponent::SetVertices(std::vector<glm::vec3> vertices)
 
 void RenderComponent::SetColor(std::vector<glm::vec3> color)
 {
+	//Same as above
 	if (m_colorBufferObject == 0)
 		glGenBuffers(1, &m_colorBufferObject);
 

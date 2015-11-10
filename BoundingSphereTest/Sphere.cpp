@@ -20,10 +20,11 @@ void Sphere::SetRadius(float radius)
 void Sphere::UpdateRenderComponent()
 {
 	std::vector<glm::vec3> octahedron;
+	//Create an octahedron using the spheres center and radius
 	octahedron = CreateOctahedronWithRadius(m_center, m_radius);
-
+	//Convert octahedron to sphere
 	std::vector<glm::vec3> vertexBuffer = OctahedronToSphere(octahedron, m_center, m_radius, NUMBER_OF_SPLITS);
-
+	//If we have a render component, set its vertex buffer
 	if (m_renderComponent)
 		m_renderComponent->SetVertices(vertexBuffer);
 }

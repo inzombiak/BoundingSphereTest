@@ -3,387 +3,17 @@
 #include <map>
 #include <fstream>
 #include <iostream>
-
-GLuint LoadDDS(std::string filepath)
-{
-	GLuint result;
-
-	unsigned char header[124];
-
-	FILE *fp;
-
-	/* try to open the file */
-	fopen_s(&fp, filepath.c_str(), "rb");
-	if (fp == NULL){
-		printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", filepath); getchar();
-		return 0;
-	}
-
-	/* verify the type of file */
-	char filecode[4];
-	fread(filecode, 1, 4, fp);
-	if (strncmp(filecode, "DDS ", 4) != 0)
-	{
-		fclose(fp);
-		return 0;
-	}
-
-	/* get the surface desc */
-	fread(&header, 124, 1, fp);
-
-	unsigned int height = *(unsigned int*)&(header[8]);
-	unsigned int width = *(unsigned int*)&(header[12]);
-	unsigned int linearSize = *(unsigned int*)&(header[16]);
-	unsigned int mipMapCount = *(unsigned int*)&(header[24]);
-	unsigned int fourCC = *(unsigned int*)&(header[80]);
-
-
-	unsigned char * buffer;
-	unsigned int bufsize;
-	/* how big is it going to be including all mipmaps? */
-	bufsize = mipMapCount > 1 ? linearSize * 2 : linearSize;
-	buffer = (unsigned char*)malloc(bufsize * sizeof(unsigned char));
-	fread(buffer, 1, bufsize, fp);
-	/* close the file pointer */
-	fclose(fp);
-
-	unsigned int components = (fourCC == FOURCC_DXT1) ? 3 : 4;
-	unsigned int format;
-	switch (fourCC)
-	{
-	case FOURCC_DXT1:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-		break;
-	case FOURCC_DXT3:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-		break;
-	case FOURCC_DXT5:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-		break;
-	default:
-		free(buffer);
-		return 0;
-	}
-
-	// Create one OpenGL texture
-	glGenTextures(1, &result);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, result);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
-	unsigned int offset = 0;
-
-	/* load the mipmaps */
-	for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
-	{
-		unsigned int size = ((width + 3) / 4)*((height + 3) / 4)*blockSize;
-		glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height,
-			0, size, buffer + offset);
-
-		offset += size;
-		width /= 2;
-		height /= 2;
-
-		// Deal with Non-Power-Of-Two textures. This code is not included in the webpage to reduce clutter.
-		if (width < 1) width = 1;
-		if (height < 1) height = 1;
-	}
-
-	free(buffer);
-
-	return result;
-}
-GLuint LoadBMP(std::string filepath)
-{
-	GLuint result;
-
-	unsigned char header[54]; // Each BMP file begins by a 54-bytes header
-	unsigned int dataPos;     // Position in the file where the actual data begins
-	unsigned int width, height;
-	unsigned int imageSize;   // = width*height*3
-	// Actual RGB data
-	unsigned char * data;
-
-	FILE* file;
-	fopen_s(&file, filepath.c_str(), "rb");
-	if (!file)
-	{
-		printf("Image could not be opened\n");
-		return false;
-	}
-
-	if (fread(header, 1, 54, file) != 54)
-	{
-		printf("Not a correct BMP file\n");
-		return false;
-	}
-
-	if (header[0] != 'B' || header[1] != 'M')
-	{
-		printf("Not a correct BMP file\n");
-		return false;
-	}
-
-	dataPos = *(int*)&(header[0x0A]);
-	imageSize = *(int*)&(header[0x22]);
-	width = *(int*)&(header[0x12]);
-	height = *(int*)&(header[0x16]);
-
-	if (imageSize == 0)
-		imageSize = width*height * 3; // 3 : one byte for each Red, Green and Blue component
-	if (dataPos == 0)
-		dataPos = 54; // The BMP header is done that way
-
-	// Create a buffer
-	data = new unsigned char[imageSize];
-
-	// Read the actual data from the file into the buffer
-	fread(data, 1, imageSize, file);
-
-	//Everything is in memory now, the file can be closed
-	fclose(file);
-
-	// Create one OpenGL texture
-	glGenTextures(1, &result);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, result);
-
-	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	return result;
-}
-
-std::vector<glm::vec2> FloatVecToGLMVec2(std::vector<float> vec)
-{
-	std::vector<glm::vec2> result;
-
-	if (vec.size() % 2 != 0)
-	{
-		printf("Provided vector is not aligned for glm::vec2");
-		return result;
-	}
-	
-	glm::vec2 vecElement;
-
-	for (int i = 0; i < vec.size()-1; i += 2)
-	{
-		vecElement.x = vec[i];
-		vecElement.y = vec[i + 1];
-
-		result.push_back(vecElement);
-	}
-
-	return result;
-}
-std::vector<glm::vec3> FloatVecToGLMVec3(std::vector<float> vec)
-{
-	std::vector<glm::vec3> result;
-
-	if (vec.size() % 3 != 0)
-	{
-		printf("Provided vector is not aligned for glm::vec3");
-		return result;
-	}
-
-	glm::vec3 vecElement;
-
-	for (int i = 0; i < vec.size() - 2; i += 3)
-	{
-		vecElement.x = vec[i];
-		vecElement.y = vec[i + 1];
-		vecElement.z = vec[i + 2];
-
-		result.push_back(vecElement);
-	}
-
-	return result;
-}
-
-void computeTangentBasis(
-	// inputs
-	std::vector<glm::vec3> & vertices,
-	std::vector<glm::vec2> & uvs,
-	std::vector<glm::vec3> & normals,
-	// outputs
-	std::vector<glm::vec3> & tangents,
-	std::vector<glm::vec3> & bitangents)
-{
-
-	for (unsigned int i = 0; i<vertices.size(); i += 3){
-
-		// Shortcuts for vertices
-		glm::vec3 & v0 = vertices[i + 0];
-		glm::vec3 & v1 = vertices[i + 1];
-		glm::vec3 & v2 = vertices[i + 2];
-
-		// Shortcuts for UVs
-		glm::vec2 & uv0 = uvs[i + 0];
-		glm::vec2 & uv1 = uvs[i + 1];
-		glm::vec2 & uv2 = uvs[i + 2];
-
-		// Edges of the triangle : postion delta
-		glm::vec3 deltaPos1 = v1 - v0;
-		glm::vec3 deltaPos2 = v2 - v0;
-
-		// UV delta
-		glm::vec2 deltaUV1 = uv1 - uv0;
-		glm::vec2 deltaUV2 = uv2 - uv0;
-
-		float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-		glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y)*r;
-		glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x)*r;
-
-		// Set the same tangent for all three vertices of the triangle.
-		// They will be merged later, in vboindexer.cpp
-		tangents.push_back(tangent);
-		tangents.push_back(tangent);
-		tangents.push_back(tangent);
-
-		// Same thing for binormals
-		bitangents.push_back(bitangent);
-		bitangents.push_back(bitangent);
-		bitangents.push_back(bitangent);
-
-	}
-
-	// See "Going Further"
-	for (unsigned int i = 0; i<vertices.size(); i += 1)
-	{
-		glm::vec3 & n = normals[i];
-		glm::vec3 & t = tangents[i];
-		glm::vec3 & b = bitangents[i];
-
-		// Gram-Schmidt orthogonalize
-		t = glm::normalize(t - n * glm::dot(n, t));
-
-		// Calculate handedness
-		if (glm::dot(glm::cross(n, t), b) < 0.0f){
-			t = t * -1.0f;
-		}
-
-	}
-
-
-}
-
-// Returns true iif v1 can be considered equal to v2
-bool is_near(float v1, float v2){
-	return fabs(v1 - v2) < 0.01f;
-}
-
-// Searches through all already-exported vertices
-// for a similar one.
-// Similar = same position + same UVs + same normal
-bool getSimilarVertexIndex(
-	glm::vec3 & in_vertex,
-	glm::vec2 & in_uv,
-	glm::vec3 & in_normal,
-	std::vector<glm::vec3> & out_vertices,
-	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals,
-	unsigned short & result
-	){
-	// Lame linear search
-	for (unsigned int i = 0; i<out_vertices.size(); i++){
-		if (
-			is_near(in_vertex.x, out_vertices[i].x) &&
-			is_near(in_vertex.y, out_vertices[i].y) &&
-			is_near(in_vertex.z, out_vertices[i].z) &&
-			is_near(in_uv.x, out_uvs[i].x) &&
-			is_near(in_uv.y, out_uvs[i].y) &&
-			is_near(in_normal.x, out_normals[i].x) &&
-			is_near(in_normal.y, out_normals[i].y) &&
-			is_near(in_normal.z, out_normals[i].z)
-			){
-			result = i;
-			return true;
-		}
-	}
-	// No other vertex could be used instead.
-	// Looks like we'll have to add it to the VBO.
-	return false;
-}
-
-struct PackedVertex{
-	glm::vec3 position;
-	glm::vec2 uv;
-	glm::vec3 normal;
-	bool operator<(const PackedVertex that) const{
-		return memcmp((void*)this, (void*)&that, sizeof(PackedVertex))>0;
-	};
-};
-
-bool getSimilarVertexIndex_fast(
-	PackedVertex & packed,
-	std::map<PackedVertex, unsigned short> & VertexToOutIndex,
-	unsigned short & result
-	){
-	std::map<PackedVertex, unsigned short>::iterator it = VertexToOutIndex.find(packed);
-	if (it == VertexToOutIndex.end()){
-		return false;
-	}
-	else{
-		result = it->second;
-		return true;
-	}
-}
-
-void indexVBO_TBN(
-	std::vector<glm::vec3> & in_vertices,
-	std::vector<glm::vec2> & in_uvs,
-	std::vector<glm::vec3> & in_normals,
-	std::vector<glm::vec3> & in_tangents,
-	std::vector<glm::vec3> & in_bitangents,
-
-	std::vector<unsigned short> & out_indices,
-	std::vector<glm::vec3> & out_vertices,
-	std::vector<glm::vec2> & out_uvs,
-	std::vector<glm::vec3> & out_normals,
-	std::vector<glm::vec3> & out_tangents,
-	std::vector<glm::vec3> & out_bitangents
-	){
-	// For each input vertex
-	for (unsigned int i = 0; i<in_vertices.size(); i++){
-
-		// Try to find a similar vertex in out_XXXX
-		unsigned short index;
-		bool found = getSimilarVertexIndex(in_vertices[i], in_uvs[i], in_normals[i], out_vertices, out_uvs, out_normals, index);
-
-		if (found){ // A similar vertex is already in the VBO, use it instead !
-			out_indices.push_back(index);
-
-			// Average the tangents and the bitangents
-			out_tangents[index] += in_tangents[i];
-			out_bitangents[index] += in_bitangents[i];
-		}
-		else{ // If not, it needs to be added in the output data.
-			out_vertices.push_back(in_vertices[i]);
-			out_uvs.push_back(in_uvs[i]);
-			out_normals.push_back(in_normals[i]);
-			out_tangents.push_back(in_tangents[i]);
-			out_bitangents.push_back(in_bitangents[i]);
-			out_indices.push_back((unsigned short)out_vertices.size() - 1);
-		}
-	}
-}
-
 std::string ReadFileToString(const char* filePath)
 {
 	std::string content;
 	std::ifstream fileStream(filePath, std::ios::in);
-
+	//Make sure file is open
 	if (!fileStream.is_open()) {
 		std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
 		return "";
 	}
 
+	//Read contents to a string
 	std::string line = "";
 	while (!fileStream.eof()) {
 		std::getline(fileStream, line);
@@ -395,14 +25,16 @@ std::string ReadFileToString(const char* filePath)
 }
 GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
 {
+	//Create shader of type
 	GLuint shader = glCreateShader(eShaderType);
 	const char *strFileData = strShaderFile.c_str();
+	//Set the sourse
 	glShaderSource(shader, 1, &strFileData, NULL);
-
+	//Compile the shader
 	glCompileShader(shader);
-
 	GLint status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+	//If there was an error, get it and display the message
 	if (status == GL_FALSE)
 	{
 		GLint infoLogLength;
@@ -427,15 +59,17 @@ GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
 }
 GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 {
+	//Create a new program
 	GLuint program = glCreateProgram();
-
+	//Attach shaders to it
 	for (size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
 		glAttachShader(program, shaderList[iLoop]);
-
+	//Link program
 	glLinkProgram(program);
 
 	GLint status;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
+	//If there was an error, get it and display the message
 	if (status == GL_FALSE)
 	{
 		GLint infoLogLength;
@@ -455,6 +89,8 @@ GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 
 std::vector<glm::vec3> CreateOctahedronWithRadius(glm::vec3 center, float radius)
 {
+	//Calculate side length and pass to other octahedron function
+
 	float side;
 	side = radius * sqrt(2);
 
@@ -467,6 +103,7 @@ std::vector<glm::vec3> CreateOctahedronWithSide(glm::vec3 center, float side)
 	//Vertices of the Octahedron
 	glm::vec3 top, bottom, cornerFrontLeft, corners[4];
 
+	//Calculate positions of the vertices
 	top = center;
 	top.y += side / sqrt(2);
 
@@ -490,13 +127,14 @@ std::vector<glm::vec3> CreateOctahedronWithSide(glm::vec3 center, float side)
 	corners[3] = corners[2];
 	corners[3].x -= side;
 
+	//Create top 4 faces
 	for (unsigned int i = 0; i < 4; ++i)
 	{
 		result.push_back(top);
 		result.push_back(corners[i]);
 		result.push_back(corners[(i + 1) % 4]);
 	}
-
+	//Create bottom four faces
 	for (unsigned int i = 0; i < 4; ++i)
 	{
 		result.push_back(bottom);
@@ -507,86 +145,117 @@ std::vector<glm::vec3> CreateOctahedronWithSide(glm::vec3 center, float side)
 	return result;
 }
 
-//Splits an equilater triangle into 4 equilateral parts
-std::vector<glm::vec3> DivideTriangle(glm::vec3 originalVertices[3],  int remainingSubdivisons)
-{
-	std::vector<glm::vec3> result;
-	glm::vec3 midPoints[3];
-
-	midPoints[0] = glm::vec3((originalVertices[0].x + originalVertices[1].x) / 2, (originalVertices[0].y + originalVertices[1].y) / 2, (originalVertices[0].z + originalVertices[1].z) / 2);
-	midPoints[1] = glm::vec3((originalVertices[1].x + originalVertices[2].x) / 2, (originalVertices[1].y + originalVertices[2].y) / 2, (originalVertices[1].z + originalVertices[2].z) / 2);
-	midPoints[2] = glm::vec3((originalVertices[2].x + originalVertices[0].x) / 2, (originalVertices[2].y + originalVertices[0].y) / 2, (originalVertices[2].z + originalVertices[0].z) / 2);
-
-	for (int i = 0; i < 3; ++i)
-	{
-		result.push_back(midPoints[i]);
-		result.push_back(originalVertices[i]);
-		result.push_back(midPoints[(i + 2) % 3]);
-	}
-
-	result.insert(result.begin(), midPoints, midPoints + 3);
-
-	if (remainingSubdivisons == 0)
-		return result;
-
-	std::vector<glm::vec3> splitResults;
-	glm::vec3 faceVertices[3];
-	std::vector<glm::vec3> newResult;
-
-	for (unsigned int i = 0; i < result.size(); i+=3)
-	{
-		faceVertices[0] = result[i];
-		faceVertices[1] = result[i + 2];
-		faceVertices[2] = result[i + 1];
-
-		splitResults = DivideTriangle(faceVertices, remainingSubdivisons - 1);
-		newResult.insert(newResult.begin(), splitResults.begin(), splitResults.end());
-	}
-
-	return newResult;
-}
-
 std::vector<glm::vec3> OctahedronToSphere(std::vector<glm::vec3> octahedronVertices, glm::vec3 sphereCenter, float sphereRadius, int numSubdivisions)
 {
+	//Create vector to hold final vertices
 	std::vector<glm::vec3> result;
-	result.reserve(unsigned int (pow(4, numSubdivisions) * 3 * 8));
+	//Reerve amount of space that will be needed, 8 faces with 4^n triangles each with 3 vertices
+	result.reserve(unsigned int(pow(4, numSubdivisions) * 3 * 8));
 
 	unsigned int numVertices = octahedronVertices.size();
 
+	//Make sure we have a octahedron, or at least the right number of vertices
 	if (numVertices != 24)
 		return result;
 
 	std::vector<glm::vec3> splitResults;
 	glm::vec3 faceVertices[3];
 
+	//Perfrom split on each face
 	for (unsigned int i = 0; i < numVertices; i += 3)
 	{
 		faceVertices[0] = octahedronVertices[i];
 		faceVertices[1] = octahedronVertices[i + 2];
 		faceVertices[2] = octahedronVertices[i + 1];
-
+		//Call recrusive split function
 		splitResults = DivideTriangle(faceVertices, numSubdivisions);
+		//Append results to existing vector
 		result.insert(result.begin(), splitResults.begin(), splitResults.end());
 	}
 
+	/*
+	We turn the split octahedron into a sphere by "wrapping" the vertices around the center.
+	This means we repeatedly loop over the vertices and move all of them to be radius distance from the center.	
+	*/
+
+	//Number of vertices, should be equal to reserved space
 	int finalVertexCount = result.size();
+	//Distance from center of the sphere
 	float distanceFromCenter;
+	//Vector from current point to the center of the sphere
 	glm::vec3 pointToCenterVector;
-	glm::vec3 newPoint, currentPoint;
+	//New point
+	glm::vec3 newPoint;
+
+	//Perfrom looping operation 8 time. The more time we loop the more precise it will be. I found 8 to be enough
 	for (int j = 0; j < 8; ++j)
-	for (unsigned int i = 0; i < finalVertexCount; ++i)
 	{
-		currentPoint = result[i];
-		distanceFromCenter = glm::distance(sphereCenter, result[i]);
-		pointToCenterVector = (result[i] - sphereCenter) * sphereRadius * (1/distanceFromCenter);
+		//Loop over all vertices
+		for (unsigned int i = 0; i < finalVertexCount; ++i)
+		{
+			//Ger the distance from the center for current point
+			distanceFromCenter = glm::distance(sphereCenter, result[i]);
+			
+			//Construct a vector from point to center and "normalize" it
+			pointToCenterVector = (result[i] - sphereCenter) * sphereRadius * (1 / distanceFromCenter);
+
+			//Weird/cool result 
+			//newPoint = result[i] + pointToCenterVector * (sphereRadius);
+
+			//Move the point closer to the center
+			newPoint = sphereCenter + pointToCenterVector;
+			//Replace old point with new one
+			result[i] = newPoint;
+		}
+	}
 		
-		//Weird/cool result 
-		//newPoint = result[i] + pointToCenterVector * (sphereRadius);
-		newPoint = sphereCenter + pointToCenterVector;
-		///printf("Radius is: %lf, Distance is: %lf, Distance was: %lf \n", sphereRadius, glm::length(newPoint - sphereCenter),glm::length(result[i] - sphereCenter));
-		result[i] = newPoint;
-		
+	return result;
+}
+std::vector<glm::vec3> DivideTriangle(glm::vec3 originalVertices[3],  int remainingSubdivisons)
+{
+	std::vector<glm::vec3> result;
+	glm::vec3 midPoints[3];
+
+	//Get mid points of the sides
+	midPoints[0] = glm::vec3((originalVertices[0].x + originalVertices[1].x) / 2, (originalVertices[0].y + originalVertices[1].y) / 2, (originalVertices[0].z + originalVertices[1].z) / 2);
+	midPoints[1] = glm::vec3((originalVertices[1].x + originalVertices[2].x) / 2, (originalVertices[1].y + originalVertices[2].y) / 2, (originalVertices[1].z + originalVertices[2].z) / 2);
+	midPoints[2] = glm::vec3((originalVertices[2].x + originalVertices[0].x) / 2, (originalVertices[2].y + originalVertices[0].y) / 2, (originalVertices[2].z + originalVertices[0].z) / 2);
+
+	//Construct "outer" 3 split triangles. These are the ones that use one of the original triangles vertices
+	for (int i = 0; i < 3; ++i)
+	{
+		result.push_back(midPoints[i]);
+		result.push_back(originalVertices[i]);
+		result.push_back(midPoints[(i + 2) % 3]);
+	}
+	//Append the central triangle, made up of only the mdipoints
+	result.insert(result.begin(), midPoints, midPoints + 3);
+
+	//If we have no remaining subdivisions, terminate recursion
+	if (remainingSubdivisons == 0)
+		return result;
+
+	//Otherwise recursively split each of the newly formed triangles
+	//Results from recursive split
+	std::vector<glm::vec3> splitResults;
+	//Holds the vertices for each new face
+	glm::vec3 faceVertices[3];
+	//New final result
+	std::vector<glm::vec3> newResult;
+
+	//Loop over all the faces
+	for (unsigned int i = 0; i < result.size(); i+=3)
+	{
+		//Set the face vertices
+		faceVertices[0] = result[i];
+		faceVertices[1] = result[i + 2];
+		faceVertices[2] = result[i + 1];
+
+		//Perfrom split
+		splitResults = DivideTriangle(faceVertices, remainingSubdivisons - 1);
+		//Append results
+		newResult.insert(newResult.begin(), splitResults.begin(), splitResults.end());
 	}
 
-	return result;
+	return newResult;
 }

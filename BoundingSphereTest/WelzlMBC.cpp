@@ -1,44 +1,5 @@
 #include "WelzlMBC.h"
 
-
-Circle WelzlMBC::CalculateMinBoundingCircle(std::vector<Point> points)
-{
-	std::vector<glm::vec3> boundaryPoints;
-	Circle minCircle;
-
-	minCircle.SetCenter(points[0].GetPosition());
-	minCircle.SetRadius(0);
-	// inital condition - circle with one point
-	unsigned int index = 1;
-	boundaryPoints.push_back(points[0].GetPosition());
-	glm::vec3 pi;
-	while (index < points.size())
-	{
-		// check if the support set doesn't contain the point processed
-		// a point in the set is a point that has triggered an update, ignore it
-		pi = points[index].GetPosition();
-		if (!SupportSetContains(boundaryPoints, pi))
-		{
-			// check if the point is outside the current minimum circle
-			if (!minCircle.IsInCircle(pi))
-			{
-				// update the minimum circle to contain the point
-				// if the new circle was indeed enlarged, ok to start over
-				Circle newc = UpdateCircle(boundaryPoints, pi);
-				if (newc.GetRadius() > minCircle.GetRadius())
-				{
-					minCircle = newc;
-					index = 0;
-					continue; // restart algorithm
-				}
-			}
-		}
-		index++;
-	}
-
-	return minCircle;
-}
-
 bool WelzlMBC::SupportSetContains(std::vector<glm::vec3> boundaryPoints, glm::vec3 point)
 {
 	bool result = false;
@@ -48,6 +9,8 @@ bool WelzlMBC::SupportSetContains(std::vector<glm::vec3> boundaryPoints, glm::ve
 
 	double dx = 0, dy = 0, dz = 0;
 
+	//Check all the points in the boundary set. 
+	//If the distance between any point in the set and the new points is greater than some small number epsilon, we add it to the set
 	for (unsigned int i = 0; i < size; ++i)
 	{
 		testPoint = boundaryPoints[i];
@@ -66,6 +29,46 @@ bool WelzlMBC::SupportSetContains(std::vector<glm::vec3> boundaryPoints, glm::ve
 
 	return result;
 }
+
+Circle WelzlMBC::CalculateMinBoundingCircle(std::vector<Point> points)
+{
+	std::vector<glm::vec3> boundaryPoints;
+	Circle minCircle;
+
+	//Create a circle with center at the first point in the given set and a radius of 0
+	minCircle.SetCenter(points[0].GetPosition());
+	minCircle.SetRadius(0);
+	//Push this point into the support set
+	boundaryPoints.push_back(points[0].GetPosition());
+	//Start loop from second point
+	unsigned int index = 1;
+	glm::vec3 pi;
+	while (index < points.size())
+	{
+		//Check if the support set doesn't contain the point processed
+		//A point in the set is a point that has triggered an update, ignore it
+		pi = points[index].GetPosition();
+		if (!SupportSetContains(boundaryPoints, pi))
+		{
+			//Check if the point is outside the current minimum circle
+			if (!minCircle.IsInCircle(pi))
+			{
+				//Update the minimum circle to contain the point
+				//If the new circle was indeed enlarged, ok to start over
+				Circle newc = UpdateCircle(boundaryPoints, pi);
+				if (newc.GetRadius() > minCircle.GetRadius())
+				{
+					minCircle = newc;
+					index = 0;
+					continue;
+				}
+			}
+		}
+		index++;
+	}
+
+	return minCircle;
+}
 Circle WelzlMBC::UpdateCircle(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
 	Circle updatedCircle;
@@ -82,6 +85,7 @@ Circle WelzlMBC::UpdateCircle(std::vector<glm::vec3>& boundaryPoints, glm::vec3 
 }
 Circle WelzlMBC::UpdateCircleOne(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
+	//If we have one point on the boundary, create a circle from two points
 	boundaryPoints.push_back(point);
 
 	return CreateCircle(boundaryPoints[0], point);
@@ -94,20 +98,18 @@ Circle WelzlMBC::UpdateCircleTwo(std::vector<glm::vec3>& boundaryPoints, glm::ve
 	float minRad2 = std::numeric_limits<float>::max();
 	int index = -1;
 
-	// create circle from point 0 and p and see if point 1 is within it
+	//Create circle from point 0 and p and see if point 1 is within it
 	circles[0] = CreateCircle(point0, point);
 	if (circles[0].IsInCircle(point1))
 	{
-		// keep it
 		minRad2 = circles[0].GetRadius();
 		index = 0;
 	}
 
-	// create circle from point 1 and p and see if point 0 is within it
+	//Create circle from point 1 and p and see if point 0 is within it
 	circles[1] = CreateCircle(point1, point);
 	if (circles[1].GetRadius() < minRad2 && circles[1].IsInCircle(point0))
 	{
-		// keep it
 		minRad2 = circles[1].GetRadius();
 		index = 1;
 	}
@@ -115,13 +117,13 @@ Circle WelzlMBC::UpdateCircleTwo(std::vector<glm::vec3>& boundaryPoints, glm::ve
 	Circle minc;
 	if (index != -1)
 	{
-		// one of the permutations contains all points, keep it
+		//One of the permutations contains all points, keep it
 		minc = circles[index];
 		boundaryPoints[1 - index] = point;
 	}
 	else
 	{
-		// enlarge circle to encompass three points and add p to set
+		//Enlarge circle to encompass all three points and add p to set
 		minc = CreateCircle(point0, point1, point);
 		boundaryPoints.push_back(point);
 	}
@@ -129,18 +131,20 @@ Circle WelzlMBC::UpdateCircleTwo(std::vector<glm::vec3>& boundaryPoints, glm::ve
 }
 Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
-	// init a total of 6 possible circles
+	//Init a total of 6 possible circles
 	Circle circles[6];
+	//Radius of minimum circle
 	float minRad2 = std::numeric_limits<float>::max();
+	//Index of minimum circle
 	int index = -1;
 
-	// init the points in the permutation tests
+	//Init the points in the permutation tests
 	glm::vec3 p0 = boundaryPoints[0];
 	glm::vec3 p1 = boundaryPoints[1];
 	glm::vec3 p2 = boundaryPoints[2];
 	glm::vec3 p3 = point;
 
-	// construct a circle from p0 and p3 and check if p1 and p2 are inside it
+	//Construct a circle from p0 and p3 and check if p1 and p2 are inside it
 	circles[0] = CreateCircle(p0, p3);
 	if (circles[0].IsInCircle(p1) && circles[0].IsInCircle(p2))
 	{
@@ -148,7 +152,7 @@ Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 0;
 	}
 
-	// construct a circle from p1 and p3 and check if p0 and p2 are inside it
+	//Construct a circle from p1 and p3 and check if p0 and p2 are inside it
 	circles[1] = CreateCircle(p1, p3);
 	if (circles[1].GetRadius() < minRad2 &&
 		circles[1].IsInCircle(p0) && circles[1].IsInCircle(p2))
@@ -157,7 +161,7 @@ Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 1;
 	}
 
-	// construct a circle from p2 and p3 and check if p0 and p1 are inside it
+	//Construct a circle from p2 and p3 and check if p0 and p1 are inside it
 	circles[2] = CreateCircle(p2, p3);
 	if (circles[2].GetRadius() < minRad2 &&
 		circles[2].IsInCircle(p0) && circles[2].IsInCircle(p1))
@@ -166,7 +170,7 @@ Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 2;
 	}
 
-	// construct a circle from p0, p1 and p3 and check if p2 is inside it
+	//Construct a circle from p0, p1 and p3 and check if p2 is inside it
 	circles[3] = CreateCircle(p0, p1, p3);
 	if (circles[3].GetRadius() < minRad2 && circles[3].IsInCircle(p2))
 	{
@@ -174,7 +178,7 @@ Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 3;
 	}
 
-	// construct a circle from p0, p2 and p3 and check if p1 is inside it
+	//Construct a circle from p0, p2 and p3 and check if p1 is inside it
 	circles[4] = CreateCircle(p0, p2, p3);
 	if (circles[4].GetRadius() < minRad2 && circles[4].IsInCircle(p1))
 	{
@@ -182,7 +186,7 @@ Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 4;
 	}
 
-	// construct a circle from p1, p2 and p3 and check if p0 is inside it
+	//Construct a circle from p1, p2 and p3 and check if p0 is inside it
 	circles[5] = CreateCircle(p1, p2, p3);
 	if (circles[5].GetRadius() < minRad2 && circles[5].IsInCircle(p0))
 	{
@@ -190,24 +194,25 @@ Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 5;
 	}
 
-	// get the minimum circle
+	//Get the minimum circle
 	Circle minc = circles[index];
 
-	// update set of support
+	//Update boundary set
 	switch (index)
 	{
 	case 0:
-		// two points, p replaces second point
+		//Two points, p replaces second point
 		boundaryPoints.resize(2);
 		boundaryPoints[1] = point;
 		break;
 	case 1:
-		// two points, p replaces first point
+		//Two points, p replaces first point
 		boundaryPoints.resize(2);
 		boundaryPoints[0] = point;
 		break;
 	case 2:
 	{
+		//Two points, p3 replaces p1 and p0 replaces p2
 		glm::vec3 temp = boundaryPoints[2];
 		boundaryPoints.resize(2);
 		boundaryPoints[0] = temp;
@@ -215,15 +220,15 @@ Circle WelzlMBC::UpdateCircleThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		break;
 	}
 	case 3:
-		// three points, p replaces third point
+		//Three points, p replaces third point
 		boundaryPoints[2] = point;
 		break;
 	case 4:
-		// three points, p replaces second point
+		//Three points, p replaces second point
 		boundaryPoints[1] = point;
 		break;
 	case 5:
-		// three points, p replaces first point
+		//Three points, p replaces first point
 		boundaryPoints[0] = point;
 		break;
 	}
@@ -239,6 +244,7 @@ Circle WelzlMBC::CreateCircle(glm::vec3 point1, glm::vec3 point2)
 	double p2x = point2.x;
 	double p2y = point2.y;
 
+	//Center is the midpoint of line connecting the 2 points
 	double cx = 0.5*(p1x + p2x);
 	double cy = 0.5*(p1y + p2y);
 
@@ -248,6 +254,8 @@ Circle WelzlMBC::CreateCircle(glm::vec3 point1, glm::vec3 point2)
 }
 Circle WelzlMBC::CreateCircle(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3)
 {
+	//Deatils can be found on Stephen R. Schmitts site - http://www.abecedarical.com/zenosamples/zs_circle3pts.html
+	
 	Circle result;
 
 	double p1x = point1.x;
@@ -276,36 +284,32 @@ Circle WelzlMBC::CreateCircle(glm::vec3 point1, glm::vec3 point2, glm::vec3 poin
 
 Sphere WelzlMBC::CalculateMinBoundingSphere(std::vector<Point> points)
 {
+	/*
+	Works the same way as 2D
+	*/
+
 	std::vector<glm::vec3> boundaryPoints;
 	Sphere minSphere;
 
 	minSphere.SetCenter(points[0].GetPosition());
 	minSphere.SetRadius(0);
-	// inital condition - circle with one point
+
 	unsigned int index = 1;
-	unsigned int programSteps = 0;
 	boundaryPoints.push_back(points[0].GetPosition());
 	glm::vec3 pi;
 	while (index < points.size())
 	{
-		//printf("ProgramStep: %u \n", programSteps);
-		programSteps++;
-		// check if the support set doesn't contain the point processed
-		// a point in the set is a point that has triggered an update, ignore it
 		pi = points[index].GetPosition();
 		if (!SupportSetContains(boundaryPoints, pi))
 		{
-			// check if the point is outside the current minimum circle
 			if (!minSphere.IsInSphere(pi))
 			{
-				// update the minimum circle to contain the point
-				// if the new circle was indeed enlarged, ok to start over
 				Sphere newc = UpdateSphere(boundaryPoints, pi);
 				if (newc.GetRadius() > minSphere.GetRadius())
 				{
 					minSphere = newc;
 					index = 0;
-					continue; // restart algorithm
+					continue;
 				}
 			}
 		}
@@ -314,9 +318,12 @@ Sphere WelzlMBC::CalculateMinBoundingSphere(std::vector<Point> points)
 
 	return minSphere;
 }
-
 Sphere WelzlMBC::UpdateSphere(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
+	/*
+	Same as 2D with one extra case
+	*/
+
 	Sphere updatedSphere;
 
 	int boundarySize = boundaryPoints.size();
@@ -343,23 +350,23 @@ Sphere WelzlMBC::UpdateSphereTwo(std::vector<glm::vec3>& boundaryPoints, glm::ve
 	glm::vec3 point0 = boundaryPoints[0], point1 = boundaryPoints[1];
 	
 	Sphere spheres[2];
+	//Minimum radius
 	float minRad2 = std::numeric_limits<float>::max();
+	//Index of minimum sphere
 	int index = -1;
 
-	// create circle from point 0 and p and see if point 1 is within it
+	//Create sphere from point 0 and p and see if point 1 is within it
 	spheres[0] = CreateSphere(point0, point);
 	if (spheres[0].IsInSphere(point1))
 	{
-		// keep it
 		minRad2 = spheres[0].GetRadius();
 		index = 0;
 	}
 
-	// create circle from point 1 and p and see if point 0 is within it
+	//Create sphere from point 1 and p and see if point 0 is within it
 	spheres[1] = CreateSphere(point1, point);
 	if (spheres[1].GetRadius() < minRad2 && spheres[1].IsInSphere(point0))
 	{
-		// keep it
 		minRad2 = spheres[1].GetRadius();
 		index = 1;
 	}
@@ -367,13 +374,13 @@ Sphere WelzlMBC::UpdateSphereTwo(std::vector<glm::vec3>& boundaryPoints, glm::ve
 	Sphere mins;
 	if (index != -1)
 	{
-		// one of the permutations contains all points, keep it
+		//One of the permutations contains all points, keep it
 		mins = spheres[index];
 		boundaryPoints[1 - index] = point;
 	}
 	else
 	{
-		// enlarge circle to encompass three points and add p to set
+		//Enlarge sphere to encompass three points and add p to set
 		mins = CreateSphere(point0, point1, point);
 		boundaryPoints.push_back(point);
 	}
@@ -381,20 +388,18 @@ Sphere WelzlMBC::UpdateSphereTwo(std::vector<glm::vec3>& boundaryPoints, glm::ve
 }
 Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
-	// init a total of 6 possible circles
+	//Init a total of 6 possible spheres
 	Sphere spheres[6];
 	float minRad2 = std::numeric_limits<float>::max();
 	int index = -1;
 
-	// init the points in the permutation tests
+	//Init the points in the permutation tests
 	glm::vec3 p0 = boundaryPoints[0];
 	glm::vec3 p1 = boundaryPoints[1];
 	glm::vec3 p2 = boundaryPoints[2];
 	glm::vec3 p3 = point;
-	index = -1;
-//	printf("Index: %u", index);
 	
-	// construct a circle from p0 and p3 and check if p1 and p2 are inside it
+	//Construct a sphere from p0 and p3 and check if p1 and p2 are inside it
 	spheres[0] = CreateSphere(p0, p3);
 	if (spheres[0].IsInSphere(p1) && spheres[0].IsInSphere(p2))
 	{
@@ -402,7 +407,7 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 0;
 	}
 
-	// construct a circle from p1 and p3 and check if p0 and p2 are inside it
+	//Construct a sphere from p1 and p3 and check if p0 and p2 are inside it
 	spheres[1] = CreateSphere(p1, p3);
 	if (spheres[1].GetRadius() < minRad2 &&
 		spheres[1].IsInSphere(p0) && spheres[1].IsInSphere(p2))
@@ -411,7 +416,7 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 1;
 	}
 
-	// construct a circle from p2 and p3 and check if p0 and p1 are inside it
+	//Construct a sphere from p2 and p3 and check if p0 and p1 are inside it
 	spheres[2] = CreateSphere(p2, p3);
 	if (spheres[2].GetRadius() < minRad2 &&
 		spheres[2].IsInSphere(p0) && spheres[2].IsInSphere(p1))
@@ -420,7 +425,7 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 2;
 	}
 
-	// construct a circle from p0, p1 and p3 and check if p2 is inside it
+	//Construct a sphere from p0, p1 and p3 and check if p2 is inside it
 	spheres[3] = CreateSphere(p0, p1, p3);
 	if (spheres[3].GetRadius() < minRad2 && spheres[3].IsInSphere(p2))
 	{
@@ -428,7 +433,7 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 3;
 	}
 
-	// construct a circle from p0, p2 and p3 and check if p1 is inside it
+	//Construct a sphere from p0, p2 and p3 and check if p1 is inside it
 	spheres[4] = CreateSphere(p0, p2, p3);
 	if (spheres[4].GetRadius() < minRad2 && spheres[4].IsInSphere(p1))
 	{
@@ -436,16 +441,17 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		index = 4;
 	}
 
-	// construct a circle from p1, p2 and p3 and check if p0 is inside it
+	//Construct a sphere from p1, p2 and p3 and check if p0 is inside it
 	spheres[5] = CreateSphere(p1, p2, p3);
 	if (spheres[5].GetRadius() < minRad2 && spheres[5].IsInSphere(p0))
 	{
 		minRad2 = spheres[5].GetRadius();
 		index = 5;
 	}
-	//printf("Index 2: %u", index);
-	// get the minimum circle
+
+	//Get the minimum sphere
 	Sphere mins;
+	//If index hasnt change construct a sphere from all 4 points
 	if (index == -1)
 	{
 		mins = CreateSphere(p0, p1, p2, p3);
@@ -455,21 +461,22 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 
 	mins = spheres[index];
 
-	// update set of support
+	//Update set of support
 	switch (index)
 	{
 	case 0:
-		// two points, p replaces second point
+		//Two points, p replaces second point
 		boundaryPoints.resize(2);
 		boundaryPoints[1] = point;
 		break;
 	case 1:
-		// two points, p replaces first point
+		//Two points, p replaces first point
 		boundaryPoints.resize(2);
 		boundaryPoints[0] = point;
 		break;
 	case 2:
 	{
+		//p3 replaces p1 and p0 replaces p2
 		glm::vec3 temp = boundaryPoints[2];
 		boundaryPoints.resize(2);
 		boundaryPoints[0] = temp;
@@ -477,84 +484,78 @@ Sphere WelzlMBC::UpdateSphereThree(std::vector<glm::vec3>& boundaryPoints, glm::
 		break;
 	}
 	case 3:
-		// three points, p replaces third point
+		//Three points, p replaces third point
 		boundaryPoints[2] = point;
 		break;
 	case 4:
-		// three points, p replaces second point
+		//Three points, p replaces second point
 		boundaryPoints[1] = point;
 		break;
 	case 5:
-		// three points, p replaces first point
+		//Three points, p replaces first point
 		boundaryPoints[0] = point;
 		break;
 	}
 
 	return mins;
 }
-
 Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::vec3 point)
 {
-	// init a total of 6 possible circles
+	//Init a total of 14 possible spheres
 	std::vector<Sphere> spheres;
 	spheres.reserve(14);
 	float minRad2 = std::numeric_limits<float>::max();
 	int index = -1;
 
 	bool pointsAreInSphere = false;
-	// init the points in the permutation tests
+	//Init the points in the permutation tests
 	glm::vec3 p0 = boundaryPoints[0];
 	glm::vec3 p1 = boundaryPoints[1];
 	glm::vec3 p2 = boundaryPoints[2];
 	glm::vec3 p3 = boundaryPoints[3];
 	glm::vec3 p4 = point;
 
-	//printf("\n *********2 Point Spheres****** \n");
 	//Test 2 point spheres, 4 total
 	for (int i = 0; i < 4; ++i)
 	{
 		pointsAreInSphere = false;
 		spheres.push_back(CreateSphere(boundaryPoints[i], p4));
-		//printf("2 Point Sphere: (p%u,p4) \n", i);
+		//If sphere is smaller than previous test if all points are in the sphere
 		if (spheres.back().GetRadius() < minRad2)
 		{
 			pointsAreInSphere = true;
 			for (int j = 1; j < 4; ++j)
 			{
-			//	printf("Testing for point p%u \n", (i + j) % 4);
 				if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
 				{
-					//printf("!!!!Point %u not in sphere \n", (i + j) % 4);
 					pointsAreInSphere = false;
 					break;
 				}
 			}
 		}
 
+		//If all points are in the sphere, set it as the new min
 		if (pointsAreInSphere)
 		{
 			minRad2 = spheres.back().GetRadius();
 			index = spheres.size()-1;
 		}
 	}
-//	printf("\n *********3 Point Spheres****** \n");
+
 	//Test 3 point spheres, 6 total
 	for (int i = 0; i < 4; ++i)
 	{
 		for (int k = i + 1; k < 4; ++k)
 		{
 			pointsAreInSphere = false;
-			//printf("3 Point Sphere: (p%u,p%u,p4) \n", i, k);
 			spheres.push_back(CreateSphere(boundaryPoints[i], boundaryPoints[k], p4));
 			if (spheres.back().GetRadius() < minRad2)
 			{
 				pointsAreInSphere = true;
  				for (int j = 1; j < 4; ++j)
 				{
-					//printf("Testing for point p%u \n", (i + j) % 4);
 					if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
 					{
-						//printf("!!!!Point %u not in sphere \n", (i + j) % 4);
 						pointsAreInSphere = false;
 						break;
 					}
@@ -569,22 +570,18 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 		}
 	}
 
-	//printf("\n *********4 Point Spheres****** \n");
 	//Test 4 point sphere, 4 total
 	for (int i = 0; i < 4; ++i)
 	{
 		pointsAreInSphere = false;
-		//printf("4 Point Sphere: (p%u, p%u, p%u, p4) \n", i, (i + 1) % 4, (i + 2) % 4);
 		spheres.push_back(CreateSphere(boundaryPoints[i], boundaryPoints[(i + 1) % 4], boundaryPoints[(i + 2) % 4], p4));
 		if (spheres.back().GetRadius() < minRad2)
 		{
 			pointsAreInSphere = true;
 			for (int j = 1; j < 4; ++j)
 			{
-				//printf("Testing for point p%u \n", (i + j) % 4);
 				if (!spheres.back().IsInSphere(boundaryPoints[(i + j) % 4]))
 				{
-					//printf("!!!!Point %u not in sphere \n", (i + j) % 4);
 					pointsAreInSphere = false;
 					break;
 				}
@@ -607,17 +604,18 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 	switch (index)
 	{
 	case 0:
-		// two points, p replaces second point
+		//Two points, p replaces second point
 		boundaryPoints.resize(2);
 		boundaryPoints[1] = point;
 		break;
 	case 1:
-		// two points, p replaces first point
+		//Two points, p replaces first point
 		boundaryPoints.resize(2);
 		boundaryPoints[0] = point;
 		break;
 	case 2:
 	{
+		//Two points, p0 replaces p2, p3 replaces p1
 		glm::vec3 temp = boundaryPoints[2];
 		boundaryPoints.resize(2);
 		boundaryPoints[0] = temp;
@@ -626,6 +624,7 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 	}
 	case 3:
 	{
+		//Two points, p0 replaces p2, p4 replaces p1
 		glm::vec3 temp = boundaryPoints[3];
 		boundaryPoints.resize(2);
 		boundaryPoints[0] = temp;
@@ -633,16 +632,13 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 		break;
 	}
 	case 4:
-		// three points, p replaces third point
-	{
+		//Three points, p0 replaces p3
 		boundaryPoints.resize(3);
 		boundaryPoints[2] = point;
 		break;
-	}
-		
 	case 5:
-		// three points, p replaces second point
 	{
+		//Three points, p0 replaces p3, p3 replaces p2 
 		glm::vec3 temp = boundaryPoints[2];
 		boundaryPoints.resize(3);
 		boundaryPoints[1] = temp;
@@ -650,8 +646,8 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 		break;
 	}
 	case 6:
-		// three points, p replaces second point
 	{
+		//Three points, p0 replaces p3, p4 replaces p2
 		glm::vec3 temp = boundaryPoints[3];
 		boundaryPoints.resize(3);
 		boundaryPoints[1] = temp;
@@ -660,6 +656,7 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 	}
 	case 7:
 	{
+		//Three points, p0 replaces p3, p3 replaces p2, p2 replaces p1
 		glm::vec3 temp1 = boundaryPoints[1];
 		glm::vec3 temp2 = boundaryPoints[2];
 		boundaryPoints.resize(3);
@@ -670,6 +667,7 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 	}
 	case 8:
 	{
+		//Three points, p0 replaces p3, p2 replaces p1, p4 replaces p2
 		glm::vec3 temp1 = boundaryPoints[1];
 		glm::vec3 temp2 = boundaryPoints[3];
 		boundaryPoints.resize(3);
@@ -680,6 +678,7 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 	}
 	case 9:
 	{
+		//Three points, p0 replaces p3, p3 replaces p1, p4 replaces p2
 		glm::vec3 temp1 = boundaryPoints[2];
 		glm::vec3 temp2 = boundaryPoints[3];
 		boundaryPoints.resize(3);
@@ -689,28 +688,31 @@ Sphere WelzlMBC::UpdateSphereFour(std::vector<glm::vec3>& boundaryPoints, glm::v
 		break;
 	}
 	case 10:
-		// three points, p replaces third point
+		//Four points, p0 replaces p4
 		boundaryPoints[3] = point;
 		break;
 	case 11:
+		//Four points, p0 replaces p1
 		std::rotate(boundaryPoints.begin(), boundaryPoints.begin() + 1,boundaryPoints.end());
 		boundaryPoints[3] = point;
 		break;
 	case 12:
+		//Four points, p0 replaces p2
 		std::rotate(boundaryPoints.begin(), boundaryPoints.begin() + 2, boundaryPoints.end());
 		boundaryPoints[3] = point;
 		break;
 	case 13:
+		//Four points, p0 replaces p3
 		std::rotate(boundaryPoints.begin(), boundaryPoints.begin() + 3, boundaryPoints.end());
 		boundaryPoints[3] = point;
 		break;
 	}
 
 	return mins;
-}
-	  		   
+}	  		   
 Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2)
 {
+	//Same as circle from 2 points, center is in the middle of the 2 points
 	Sphere result = Sphere();
 
 	float p1x = point1.x;
@@ -731,6 +733,7 @@ Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2)
 }
 Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3)
 {
+	//Formula can be found on Wikipedia - https://en.wikipedia.org/wiki/Circumscribed_circle#Cartesian_coordinates_from_cross-_and_dot-products
 	Sphere result = Sphere();
 
 	glm::vec3 vec12 = point1 - point2;
@@ -758,6 +761,8 @@ Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2, glm::vec3 poin
 }
 Sphere WelzlMBC::CreateSphere(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, glm::vec3 point4)
 {
+	//Once again a thank you to Stephen R. Schmitt - http://www.abecedarical.com/zenosamples/zs_sphere4pts.html
+
 	Sphere result = Sphere();
 
 	glm::mat4x4 matrix (0.0f);
