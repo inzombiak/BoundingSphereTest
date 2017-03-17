@@ -62,6 +62,12 @@ void RenderComponent::SetVertices(std::vector<glm::vec3> vertices)
 
 void RenderComponent::SetColor(std::vector<glm::vec3> color)
 {
+	if (color.size() < m_numVertices)
+	{
+		color.resize(m_numVertices, glm::vec3(0.f, 0.f, 0.f));
+	}
+
+
 	//Same as above
 	if (m_colorBufferObject == 0)
 		glGenBuffers(1, &m_colorBufferObject);

@@ -1,8 +1,7 @@
 #pragma once
-#define FREEGLUT_STATIC
 #define GLEW_STATIC
-#include <gl\glew.h>
-#include <gl\freeglut.h>
+#include "glew.h"
+#include "GL\freeglut.h"
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 

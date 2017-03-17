@@ -1,10 +1,11 @@
-﻿Build started 11/10/2015 4:27:24 PM.
-     1>Project "C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" on node 2 (Build target(s)).
+﻿Build started 3/17/2017 11:13:47 AM.
+     1>Project "C:\Users\User\Documents\GitHub\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\GLM\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
-         main.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Development Libraries\freeglut\include" /I"C:\Development Libraries\glew-2.0.0\include\GL" /I"C:\Development Libraries\glm" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt RenderComponent.cpp
+         RenderComponent.cpp
+     1>RenderComponent.cpp(65): warning C4018: '<' : signed/unsigned mismatch
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.exe" /INCREMENTAL:NO /NOLOGO glew32s.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.pdb" /SUBSYSTEM:CONSOLE /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.lib" /MACHINE:X86 /SAFESEH Release\Circle.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\User\Documents\GitHub\BoundingSphereTest\Release\BoundingSphereTest.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\Development Libraries\freeglut\lib" /LIBPATH:"C:\Development Libraries\glew-2.0.0\lib\Release\Win32" glew32s.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\User\Documents\GitHub\BoundingSphereTest\Release\BoundingSphereTest.pdb" /SUBSYSTEM:CONSOLE /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\User\Documents\GitHub\BoundingSphereTest\Release\BoundingSphereTest.lib" /MACHINE:X86 /SAFESEH Release\Circle.obj
          Release\HelperFunctions.obj
          Release\main.obj
          Release\ObjectManager.obj
@@ -13,6 +14,7 @@
          Release\RenderManager.obj
          Release\Sphere.obj
          Release\WelzlMBC.obj
+     1>LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
          Generating code
          Finished generating code
      1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewAttachShader imported
@@ -26,9 +28,10 @@
      1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewLinkProgram imported
      1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewGetShaderInfoLog imported
      1>HelperFunctions.obj : warning LNK4049: locally defined symbol ___glewCreateShader imported
-         BoundingSphereTest.vcxproj -> C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\Release\BoundingSphereTest.exe
-     1>Done Building Project "C:\Users\Zareh\documents\visual studio 2013\Projects\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" (Build target(s)).
+     1>glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\User\Documents\GitHub\BoundingSphereTest\Release\vc120.pdb'; linking object as if no debug info
+         BoundingSphereTest.vcxproj -> C:\Users\User\Documents\GitHub\BoundingSphereTest\Release\BoundingSphereTest.exe
+     1>Done Building Project "C:\Users\User\Documents\GitHub\BoundingSphereTest\BoundingSphereTest\BoundingSphereTest.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:03.30
+Time Elapsed 00:00:01.71

@@ -1,19 +1,18 @@
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\vc120.pdb
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\welzlmbc.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\sphere.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\rendermanager.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\rendercomponent.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\point.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\objectmanager.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\main.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\helperfunctions.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\collisionmanager.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\circle.obj
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\release\boundingspheretest.exe
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\release\boundingspheretest.pdb
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\cl.command.1.tlog
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\cl.read.1.tlog
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\cl.write.1.tlog
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\link.command.1.tlog
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\link.read.1.tlog
-c:\users\zareh\documents\visual studio 2013\projects\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\link.write.1.tlog
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\vc120.pdb
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\helperfunctions.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\welzlmbc.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\sphere.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\rendercomponent.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\point.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\objectmanager.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\circle.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\main.obj
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\rendermanager.obj
+c:\users\user\documents\github\boundingspheretest\release\boundingspheretest.exe
+c:\users\user\documents\github\boundingspheretest\release\boundingspheretest.pdb
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\cl.command.1.tlog
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\cl.read.1.tlog
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\cl.write.1.tlog
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\link.command.1.tlog
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\link.read.1.tlog
+c:\users\user\documents\github\boundingspheretest\boundingspheretest\release\bounding.b014aceb.tlog\link.write.1.tlog

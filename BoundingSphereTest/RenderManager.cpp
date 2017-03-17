@@ -1,8 +1,7 @@
 #include "RenderManager.h"
-#define FREEGLUT_STATIC
 #define GLEW_STATIC
-#include <gl\glew.h>
-#include <gl\freeglut.h>
+#include "glew.h"
+#include "gl\freeglut.h"
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
@@ -53,7 +52,7 @@ void RenderManager::Draw(glm::vec3 position, glm::vec3 direction, glm::vec3 up, 
 	}
 	
 	//Clear screen
-	glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+	glClearColor(213.f / 255.f, 220.f / 255.f, 222.f / 255.f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Draw all the components

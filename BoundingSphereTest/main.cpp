@@ -1,8 +1,7 @@
 #include <iostream>
-#define FREEGLUT_STATIC
 #define GLEW_STATIC
-#include <gl\glew.h>
-#include <gl\freeglut.h>
+#include "glew.h"
+#include "gl\freeglut.h""
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
@@ -127,18 +126,43 @@ void display()
 	m_om.Draw(position, direction, up);
 }
 
+bool m_mouseDown = false;
+int m_oldMouseX, m_oldMouseY;
+
 void drag(int x, int y)
 {
+	//Only drag if clicked
+	if (!m_mouseDown)
+		return;
+
 	//Rotate camera based on mouse movement
-	m_xRotate += mouseSpeed * float(glutGet(GLUT_WINDOW_WIDTH) / 2 - x);
-	m_yRotate += mouseSpeed * float(glutGet(GLUT_WINDOW_HEIGHT) / 2 - y);
+	m_xRotate += mouseSpeed * float(m_oldMouseX - x);
+	m_yRotate += mouseSpeed * float(m_oldMouseY - y);
 
 	//Redisplay
 	display();
 
-	//Keep mouse centered in window
-	if (x != glutGet(GLUT_WINDOW_WIDTH) / 2 || y != glutGet(GLUT_WINDOW_HEIGHT) / 2)
-		glutWarpPointer(glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2);
+	m_oldMouseX = x;
+	m_oldMouseY = y;
+}
+
+void mouseButtonPressed(int button, int state, int x, int y)
+{
+	if (button != GLUT_LEFT_BUTTON)
+		return;
+
+	if (state == GLUT_UP)
+	{
+		m_mouseDown = false;
+	}
+	else
+	{
+		m_mouseDown = true;
+	}
+		
+	m_oldMouseX = x;
+	m_oldMouseY = y;
+
 }
 
 int main(int argc, char **argv)
@@ -157,7 +181,8 @@ int main(int argc, char **argv)
 	glewInit();
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
-	glutPassiveMotionFunc(drag);
+	glutMouseFunc(mouseButtonPressed);
+	glutMotionFunc(drag);
 	init();
 	glutMainLoop();
 }
