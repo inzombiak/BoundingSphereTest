@@ -12,5 +12,5 @@ In 3D mode
 * W,A,S,D - moves camera
 * Mouse - rotates camera
 
-## Requirements
+## Requirements:
 GLM, FreeGLUT and GLEW
