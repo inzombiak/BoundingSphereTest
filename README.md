@@ -10,7 +10,7 @@ R - generates new random points
 
 C - calculates bounding shape
 
-F - swtiches between 2D and 3D
+F - switches between 2D and 3D
 
 In 3D mode
 
